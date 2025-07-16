@@ -53,12 +53,80 @@ app.use(session({
 
 app.use(flash());
 
+// TO DO: Create a middlewware function validateRegistration
+const validateRegistration = (req, res, next) => {
+    const { username, email, password, address, coontact } = req.body;
 
+    if (!username || !email || !password || !address || !coontact) {
+        return res.status(400).send('All fields are required');
+    }
+
+    if (password.length < 6) {
+        req.flash('error', 'Password must be at least 6 characters long');
+        req.flash('formData', req.body);
+        return res.redirect('/register');
+    }
+
+    next();
+};
 
 // Define routes
 app.get('/',  (req, res) => {
-    res.render('index', {user: req.session.user} );
+    res.render('index', {user: req.session.user}, { messages: req.flash('success') });
 });
+
+// TO DO: Integrate into the registration route
+app.post('/register', validateRegistration, (req, res) => {
+
+    const { username, email, password, address, contact } = req.body;
+
+    const sql = 'INSERT INTO users (username, email, password, address, contact) VALUES (?, ?, SHA(?), ?, ?)';
+    db.query(sql, [username, email, password, address, contact], (err, result) => {
+        if (err) {
+            throw err;
+        }
+        console.log(result);
+        req.flash('success', 'Registration successful! Please log in.');
+        res.redirect('/login');
+    });
+});
+
+// TO DO: Insert code for login routes to render login page below
+app.get('/login', (req, res) => {
+
+    res.render('login', { 
+        message: req.flash('success'),
+        error: req.flash('error')
+    });
+});
+
+app.post('/login', (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        req.flash('error', 'All fields are required');
+        return res.redirect('/login');
+    }
+
+    const sql = 'SELECT * FROM users WHERE email = ? AND password = SHA1(?)';
+    db.query(sql, [email, password], (err, results) => {
+        if (err) {
+            throw err;
+        }
+
+        if (results.length > 0) {
+            // Successful login
+            req.session.user = results[0]; // store user in session
+            req.flash('success', 'Login successful!');
+            res.redirect('/');
+        } else {
+            // Invalid login credientials
+            req.flash('error', 'Invalid email or password');
+            res.redirect('/login');
+        }
+    });
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
