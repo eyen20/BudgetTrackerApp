@@ -53,5 +53,12 @@ app.use(session({
 
 app.use(flash());
 
+
+
+// Define routes
+app.get('/',  (req, res) => {
+    res.render('index', {user: req.session.user} );
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
