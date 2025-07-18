@@ -5,21 +5,21 @@ const flash = require('connect-flash');
 const app = express();
 
 // Set up MySQL connection
-// const connection = mysql.createConnection({
-//     host: 't6gdg4.h.filess.io',
-//     port: 61002,
-//     user: 'C237DatabaseTeam8_dulleatmad',
-//     password: '396ec17ca276380b5b1015a2727a4af8ad42d4c8',
-//     database: 'C237DatabaseTeam8_dulleatmad'
-// });
-
 const connection = mysql.createConnection({
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: 'Republic_C207',
+    host: 't6gdg4.h.filess.io',
+    port: 61002,
+    user: 'C237DatabaseTeam8_dulleatmad',
+    password: '396ec17ca276380b5b1015a2727a4af8ad42d4c8',
     database: 'C237DatabaseTeam8_dulleatmad'
 });
+
+// const connection = mysql.createConnection({
+//     host: 'localhost',
+//     port: 3306,
+//     user: 'root',
+//     password: 'Republic_C207',
+//     database: 'C237DatabaseTeam8_dulleatmad'
+// });
 
 connection.connect((err) => {
     if (err) {
