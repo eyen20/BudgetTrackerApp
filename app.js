@@ -53,6 +53,25 @@ app.use(session({
 
 app.use(flash());
 
+// TO DO: Create a middleware to check if user is logged in //
+const checkAuthenticated = (req, res, next) => {
+    if (req.session.user) {
+        return next();
+    } else {
+        req.flash('error', 'Pleasae log in to view this resource');
+        res.redirect('/login');
+    }
+};
+// TO DO: Create a middleware to check if user is admin //
+const checkAdmin = (req, res, next) => {
+    if (req.session.user.role === 'admin') {
+        return next();
+    } else {
+        req.flash('error', 'Access denied. Admins only.');
+        res.redirect('/dashboard');
+    }
+};
+
 // TO DO: Create a middlewware function validateRegistration
 const validateRegistration = (req, res, next) => {
     const { username, email, password, address, coontact } = req.body;
@@ -78,10 +97,10 @@ app.get('/',  (req, res) => {
 // TO DO: Integrate into the registration route
 app.post('/register', validateRegistration, (req, res) => {
 
-    const { username, email, password, address, contact } = req.body;
+    const { username, email, password, address, contact, role} = req.body;
 
-    const sql = 'INSERT INTO users (username, email, password, address, contact) VALUES (?, ?, SHA(?), ?, ?)';
-    db.query(sql, [username, email, password, address, contact], (err, result) => {
+    const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA(?), ?, ?, ?)';
+    db.query(sql, [username, email, password, address, contact, role], (err, result) => {
         if (err) {
             throw err;
         }
@@ -118,7 +137,7 @@ app.post('/login', (req, res) => {
             // Successful login
             req.session.user = results[0]; // store user in session
             req.flash('success', 'Login successful!');
-            res.redirect('/');
+            res.redirect('/dashboard');
         } else {
             // Invalid login credientials
             req.flash('error', 'Invalid email or password');
@@ -127,6 +146,21 @@ app.post('/login', (req, res) => {
     });
 });
 
+// TO DO: Insert code for dashboard route //
+app.get('/dashboard', checkAuthenticated, (req, res) => {
+    res.render('dashboard', { user: req.session.user });
+});
+
+// TO DO: Insert code for admin dashboard route //
+app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
+    res.render('admin', { user: req.session.user });
+});
+
+// TO DO: Insert code for logout route //
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
