@@ -9,20 +9,23 @@
 <body>
   <div class="container">
     <h1 class="mt-5">Welcome to the Budget Tracker App</h1>
-    <% if (messages && messages.length> 0) { %>
+
+    <% if (messages && messages.length > 0) { %>
       <div class="alert alert-success">
         <% messages.forEach(function(message) { %>
-          <p>
-            <%= message %>
-          </p>
-          <% }); %>
+          <p><%= message %></p>
+        <% }); %>
       </div>
-      Hello, <%= user.username %>
-        <br> <a href="/logout" class="btn btn-primary mt-3">Logout</a>
-        <% } else { %>
-          <a href="/register" class="btn btn-primary mt-3">Register</a>
-          <a href="/login" class="btn btn-primary mt-3">Login</a>
-          <% } %>
+    <% } %>
+
+    <% if (user) { %>
+      <p>Hello, <%= user.username %></p>
+      <a href="/dashboard" class="btn btn-primary mt-3">Go to Dashboard</a>
+      <a href="/logout" class="btn btn-secondary mt-3 ms-2">Logout</a>
+    <% } else { %>
+      <a href="/register" class="btn btn-primary mt-3">Register</a>
+      <a href="/login" class="btn btn-secondary mt-3 ms-2">Login</a>
+    <% } %>
   </div>
 </body>
 

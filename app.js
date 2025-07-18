@@ -83,6 +83,9 @@ const validateRegistration = (req, res, next) => {
 
 // Routes
 app.get('/', (req, res) => {
+    if (req.session.user) {
+        return res.redirect('/dashboard');  // Redirect logged-in users to dashboard
+    }
     res.render('index', {
         user: req.session.user,
         messages: req.flash('success')
@@ -146,21 +149,20 @@ app.post('/login', (req, res) => {
     });
 });
 
-// Dashboard route
 // Dashboard route - shows budgets and expenses for logged-in user
 app.get('/dashboard', checkAuthenticated, (req, res) => {
     const userId = req.session.user.id;
 
-    // Get current month as 'YYYY-MM' for filtering budgets by month
-    const currentMonth = new Date().toISOString().slice(0, 7);
+    // Get month from query param or default to current month (YYYY-MM)
+    const selectedMonth = req.query.month || new Date().toISOString().slice(0, 7);
 
-    // SQL query to get budgets for the current month and the sum of expenses in those categories and month
-    const sql = `
+    console.log('Filtering budgets for month:', selectedMonth);
+
+    const sqlBudgets = `
     SELECT 
-      b.budgetId,
       b.category,
       b.month,
-      b.amount AS budgeted,
+      SUM(b.amount) AS budgeted,
       IFNULL(SUM(e.amount), 0) AS spent
     FROM budgets b
     LEFT JOIN expenses e
@@ -170,40 +172,52 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
       AND YEAR(b.month) = YEAR(e.date)
     WHERE b.userId = ?
       AND DATE_FORMAT(b.month, '%Y-%m') = ?
-    GROUP BY b.budgetId, b.category, b.month, b.amount
+    GROUP BY b.category, b.month
     ORDER BY b.category
   `;
 
-    // Execute the budgets query with userId and currentMonth parameters
-    connection.query(sql, [userId, currentMonth], (err, budgets) => {
+    const sqlExpenses = `
+    SELECT * FROM expenses
+    WHERE userId = ?
+    AND DATE_FORMAT(date, '%Y-%m') = ?
+    ORDER BY date DESC
+    LIMIT 5
+  `;
+
+    connection.query(sqlBudgets, [userId, selectedMonth], (err, budgets) => {
         if (err) {
             console.error('Error fetching budgets:', err);
             return res.status(500).send('Database error fetching budgets');
         }
 
-        // Optional: Also fetch recent expenses to display alongside budgets
-        const expensesSql = `
-      SELECT * FROM expenses 
-      WHERE userId = ?
-      ORDER BY date DESC
-      LIMIT 5
-    `;
+        // Format month to friendly 'Jul 2025' format
+        const formattedBudgets = budgets.map(b => {
+            const date = new Date(b.month);
+            const monthName = date.toLocaleString('default', { month: 'short' }); // e.g., "Jul"
+            const year = date.getFullYear();
+            return {
+                ...b,
+                formattedMonth: `${monthName} ${year}`
+            };
+        });
 
-        connection.query(expensesSql, [userId], (err, expenses) => {
+        connection.query(sqlExpenses, [userId, selectedMonth], (err, expenses) => {
             if (err) {
                 console.error('Error fetching expenses:', err);
                 return res.status(500).send('Database error fetching expenses');
             }
 
-            // Render the dashboard view, passing user info, budgets, and expenses
             res.render('dashboard', {
                 user: req.session.user,
-                budgets,
-                expenses
+                budgets: formattedBudgets,
+                expenses,
+                selectedMonth
             });
         });
     });
 });
+
+
 
 // Admin dashboard route
 app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
