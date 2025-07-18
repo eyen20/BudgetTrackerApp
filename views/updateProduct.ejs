@@ -30,44 +30,36 @@
 
   <!-- Main content -->
   <div class="container mt-4">
-    <h2 class="text-center mb-4">Update Product</h2>
+    <h2 class="text-center mb-4">Update Budget</h2>
     
-    <% if (product) { %>
-      <form action="/updateProduct/<%= product.productId %>" method="POST" enctype="multipart/form-data" class="mx-auto" style="max-width: 500px;">
-        
+    <% if (budget) { %>
+      <form action="/updateBudget/<%= budget.budgetId %>" method="POST" enctype="multipart/form-data" class="mx-auto" style="max-width: 500px;">
         <div class="mb-3">
-          <label for="name" class="form-label">Product Name</label>
-          <input type="text" class="form-control" id="name" name="name" value="<%= product.productName %>" required>
+          <label for="title" class="form-label">Expense Title</label>
+          <input type="text" class="form-control" id="title" name="title" value="<%= budget.title %>" required>
         </div>
 
         <div class="mb-3">
-          <label for="quantity" class="form-label">Quantity</label>
-          <input type="number" class="form-control" id="quantity" name="quantity" min="0" step="1" value="<%= product.quantity %>" required>
+          <label for="category" class="form-label">Category</label>
+          <input type="text" class="form-control" id="category" name="category" value="<%= budget.category %>" required>
         </div>
 
         <div class="mb-3">
-          <label for="price" class="form-label">Price</label>
-          <input type="number" class="form-control" id="price" name="price" min="0" step="0.01" value="<%= product.price %>" required>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Current Image</label>
-          <input type="text" class="form-control" name="currentImage" value="<%= product.image %>" readonly>
-          <img src="/images/<%= product.image %>" class="img-thumbnail mt-2" style="width: 150px;">
+          <label for="amount" class="form-label">Amount ($)</label>
+          <input type="number" class="form-control" id="amount" name="amount" min="0" step="0.01" value="<%= budget.amount %>" required>
         </div>
 
         <div class="mb-4">
-          <label for="image" class="form-label">Upload New Image</label>
-          <input class="form-control" type="file" id="image" name="image" accept="image/*">
+          <label for="date" class="form-label">Date</label>
+          <input class="form-control" type="date" id="date" name="date" value="<%= budget.date %>" required>
         </div>
 
-        <div class="d-grid gap-2">
-          <button type="submit" class="btn btn-primary">Update Product</button>
-          <a href="/inventory" class="btn btn-secondary">Back to Inventory</a>
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary">Update Expense</button>
         </div>
       </form>
     <% } else { %>
-      <p class="text-center">No product found.</p>
+      <p class="text-center">No budget found.</p>
     <% } %>
   </div>
 </body>
