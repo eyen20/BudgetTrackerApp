@@ -58,9 +58,9 @@ const checkAdmin = (req, res, next) => {
 
 // Middleware function to validate registration
 const validateRegistration = (req, res, next) => {
-    const { username, email, password, address, coontact } = req.body;
+    const { username, email, password, address, contact } = req.body;
 
-    if (!username || !email || !password || !address || !coontact) {
+    if (!username || !email || !password || !address || !contact) {
         return res.status(400).send('All fields are required');
     }
 
