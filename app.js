@@ -2,28 +2,16 @@ const express = require('express');
 const mysql = require('mysql2');
 const session = require('express-session');
 const flash = require('connect-flash');
-const multer = require('multer');
 const app = express();
 
-// Set up multer for file uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/images'); // Directory to save uploaded files
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.originalname); 
-    }
-});
-
-const upload = multer({ storage: storage });
-
+// Set up MySQL connection
 const connection = mysql.createConnection({
     host: 't6gdg4.h.filess.io',
     port: 61002,
     user: 'C237DatabaseTeam8_dulleatmad',
     password: '396ec17ca276380b5b1015a2727a4af8ad42d4c8',
     database: 'C237DatabaseTeam8_dulleatmad'
-  });
+});
 
 connection.connect((err) => {
     if (err) {
@@ -33,36 +21,32 @@ connection.connect((err) => {
     console.log('Connected to MySQL database');
 });
 
-// Set up view engine
+// Set up view engine and middleware
 app.set('view engine', 'ejs');
-//  enable static files
 app.use(express.static('public'));
-// enable form processing
-app.use(express.urlencoded({
-    extended: false
-}));
+app.use(express.urlencoded({ extended: false }));
 
-//TO DO: Insert code for Session Middleware below 
+// Session and flash
 app.use(session({
     secret: 'secret',
     resave: false,
     saveUninitialized: true,
-    // Session expires after 1 week of inactivity
-    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 } 
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }
 }));
 
 app.use(flash());
 
-// TO DO: Create a middleware to check if user is logged in //
+// Middleware to check if a user is logged in
 const checkAuthenticated = (req, res, next) => {
     if (req.session.user) {
         return next();
     } else {
-        req.flash('error', 'Pleasae log in to view this resource');
+        req.flash('error', 'Please log in to view this resource');
         res.redirect('/login');
     }
 };
-// TO DO: Create a middleware to check if user is admin //
+
+// Middleware to check if a user is an admin
 const checkAdmin = (req, res, next) => {
     if (req.session.user.role === 'admin') {
         return next();
@@ -72,7 +56,7 @@ const checkAdmin = (req, res, next) => {
     }
 };
 
-// TO DO: Create a middlewware function validateRegistration
+// Middleware function to validate registration
 const validateRegistration = (req, res, next) => {
     const { username, email, password, address, coontact } = req.body;
 
@@ -89,31 +73,28 @@ const validateRegistration = (req, res, next) => {
     next();
 };
 
-// Define routes
+// Routes
 app.get('/',  (req, res) => {
-    res.render('index', {user: req.session.user}, { messages: req.flash('success') });
+    res.render('index', {
+        user: req.session.user,
+        messages: req.flash('success')
+    });
 });
 
-// TO DO: Integrate into the registration route
+// Integrate into the registration route
 app.post('/register', validateRegistration, (req, res) => {
-
-    const { username, email, password, address, contact, role} = req.body;
-
+    const { username, email, password, address, contact, role } = req.body;
     const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA(?), ?, ?, ?)';
-    db.query(sql, [username, email, password, address, contact, role], (err, result) => {
-        if (err) {
-            throw err;
-        }
-        console.log(result);
+    connection.query(sql, [username, email, password, address, contact, role], (err, result) => {
+        if (err) throw err;
         req.flash('success', 'Registration successful! Please log in.');
         res.redirect('/login');
     });
 });
 
-// TO DO: Insert code for login routes to render login page below
+// Login routes to render login page below
 app.get('/login', (req, res) => {
-
-    res.render('login', { 
+    res.render('login', {
         message: req.flash('success'),
         error: req.flash('error')
     });
@@ -128,14 +109,11 @@ app.post('/login', (req, res) => {
     }
 
     const sql = 'SELECT * FROM users WHERE email = ? AND password = SHA1(?)';
-    db.query(sql, [email, password], (err, results) => {
-        if (err) {
-            throw err;
-        }
+    connection.query(sql, [email, password], (err, results) => {
+        if (err) throw err;
 
         if (results.length > 0) {
-            // Successful login
-            req.session.user = results[0]; // store user in session
+            req.session.user = results[0];
             req.flash('success', 'Login successful!');
             res.redirect('/dashboard');
         } else {
@@ -146,17 +124,37 @@ app.post('/login', (req, res) => {
     });
 });
 
-// TO DO: Insert code for dashboard route //
+// Dashboard route
 app.get('/dashboard', checkAuthenticated, (req, res) => {
     res.render('dashboard', { user: req.session.user });
 });
 
-// TO DO: Insert code for admin dashboard route //
+// Admin dashboard route
 app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
     res.render('admin', { user: req.session.user });
 });
 
-// TO DO: Insert code for logout route //
+// Add Expense route
+app.get('/addExpense', checkAuthenticated, (req, res) => {
+    res.render('addExpense', { user: req.session.user });
+});
+
+app.post('/addExpense', checkAuthenticated, (req, res) => {
+    const { title, category, amount, date } = req.body;
+    const userId = req.session.user.id;
+
+    const sql = 'INSERT INTO expenses (userId, title, category, amount, date) VALUES (?, ?, ?, ?, ?)';
+    connection.query(sql, [userId, title, category, amount, date], (err, result) => {
+        if (err) {
+            console.error('Error adding expense:', err);
+            return res.status(500).send('Error adding expense');
+        }
+        req.flash('success', 'Expense added successfully!');
+        res.redirect('/dashboard');
+    });
+});
+
+// Logout route
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
