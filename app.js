@@ -4,7 +4,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const app = express();
 
-// MySQL connection
+// Set up MySQL connection
 const connection = mysql.createConnection({
     host: 't6gdg4.h.filess.io',
     port: 61002,
@@ -21,11 +21,12 @@ connection.connect((err) => {
     console.log('Connected to MySQL database');
 });
 
-// Middleware and view engine
+// Set up view engine and middleware
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: false }));
 
+// Session and flash
 app.use(session({
     secret: 'secret',
     resave: false,
@@ -35,7 +36,7 @@ app.use(session({
 
 app.use(flash());
 
-// Middleware to check login
+// Middleware to check if a user is logged in
 const checkAuthenticated = (req, res, next) => {
     if (req.session.user) {
         return next();
@@ -45,9 +46,9 @@ const checkAuthenticated = (req, res, next) => {
     }
 };
 
-// Middleware to check admin
+// Middleware to check if a user is an admin
 const checkAdmin = (req, res, next) => {
-    if (req.session.user && req.session.user.role === 'admin') {
+    if (req.session.user.role === 'admin') {
         return next();
     } else {
         req.flash('error', 'Access denied. Admins only.');
@@ -55,11 +56,11 @@ const checkAdmin = (req, res, next) => {
     }
 };
 
-// Middleware to validate registration
+// Middleware function to validate registration
 const validateRegistration = (req, res, next) => {
-    const { username, email, password, address, contact } = req.body;
+    const { username, email, password, address, coontact } = req.body;
 
-    if (!username || !email || !password || !address || !contact) {
+    if (!username || !email || !password || !address || !coontact) {
         return res.status(400).send('All fields are required');
     }
 
@@ -73,39 +74,29 @@ const validateRegistration = (req, res, next) => {
 };
 
 // Routes
-app.get('/', (req, res) => {
+app.get('/',  (req, res) => {
     res.render('index', {
         user: req.session.user,
         messages: req.flash('success')
     });
 });
 
-app.get('/register', (req, res) => {
-    res.render('register', {
-        message: req.flash('success'),
-        error: req.flash('error')
-    });
-});
-
+// Integrate into the registration route
 app.post('/register', validateRegistration, (req, res) => {
     const { username, email, password, address, contact, role } = req.body;
-
     const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA(?), ?, ?, ?)';
     connection.query(sql, [username, email, password, address, contact, role], (err, result) => {
-        if (err) {
-            console.error('Registration error:', err);
-            return res.status(500).send('Registration failed');
-        }
+        if (err) throw err;
         req.flash('success', 'Registration successful! Please log in.');
         res.redirect('/login');
     });
 });
 
+// Login routes to render login page below
 app.get('/login', (req, res) => {
     res.render('login', {
         message: req.flash('success'),
-        error: req.flash('error'),
-        errors: []  // Prevents ReferenceError in EJS
+        error: req.flash('error')
     });
 });
 
@@ -119,30 +110,31 @@ app.post('/login', (req, res) => {
 
     const sql = 'SELECT * FROM users WHERE email = ? AND password = SHA1(?)';
     connection.query(sql, [email, password], (err, results) => {
-        if (err) {
-            console.error('Login error:', err);
-            return res.status(500).send('Login failed');
-        }
+        if (err) throw err;
 
         if (results.length > 0) {
             req.session.user = results[0];
             req.flash('success', 'Login successful!');
             res.redirect('/dashboard');
         } else {
+            // Invalid login credientials
             req.flash('error', 'Invalid email or password');
             res.redirect('/login');
         }
     });
 });
 
+// Dashboard route
 app.get('/dashboard', checkAuthenticated, (req, res) => {
     res.render('dashboard', { user: req.session.user });
 });
 
+// Admin dashboard route
 app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
     res.render('admin', { user: req.session.user });
 });
 
+// Add Expense route
 app.get('/addExpense', checkAuthenticated, (req, res) => {
     res.render('addExpense', { user: req.session.user });
 });
@@ -151,7 +143,7 @@ app.post('/addExpense', checkAuthenticated, (req, res) => {
     const { title, category, amount, date } = req.body;
     const userId = req.session.user.id;
 
-    const sql = 'INSERT INTO budgets (userId, title, category, amount, date) VALUES (?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO expenses (userId, title, category, amount, date) VALUES (?, ?, ?, ?, ?)';
     connection.query(sql, [userId, title, category, amount, date], (err, result) => {
         if (err) {
             console.error('Error adding expense:', err);
@@ -162,11 +154,11 @@ app.post('/addExpense', checkAuthenticated, (req, res) => {
     });
 });
 
+// Logout route
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
