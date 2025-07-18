@@ -109,8 +109,8 @@ app.post('/register', validateRegistration, (req, res) => {
 // Login routes to render login page below
 app.get('/login', (req, res) => {
     res.render('login', {
-        message: req.flash('success'),
-        error: req.flash('error')
+        errors: req.flash('error'),        
+        messages: req.flash('success')     
     });
 });
 
