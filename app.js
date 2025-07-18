@@ -5,11 +5,19 @@ const flash = require('connect-flash');
 const app = express();
 
 // Set up MySQL connection
+// const connection = mysql.createConnection({
+//     host: 't6gdg4.h.filess.io',
+//     port: 61002,
+//     user: 'C237DatabaseTeam8_dulleatmad',
+//     password: '396ec17ca276380b5b1015a2727a4af8ad42d4c8',
+//     database: 'C237DatabaseTeam8_dulleatmad'
+// });
+
 const connection = mysql.createConnection({
-    host: 't6gdg4.h.filess.io',
-    port: 61002,
-    user: 'C237DatabaseTeam8_dulleatmad',
-    password: '396ec17ca276380b5b1015a2727a4af8ad42d4c8',
+    host: 'localhost',
+    port: 3306,
+    user: 'root',
+    password: 'Republic_C207',
     database: 'C237DatabaseTeam8_dulleatmad'
 });
 
@@ -24,7 +32,7 @@ connection.connect((err) => {
 // Set up view engine and middleware
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 
 // Session and flash
 app.use(session({
@@ -74,7 +82,7 @@ const validateRegistration = (req, res, next) => {
 };
 
 // Routes
-app.get('/',  (req, res) => {
+app.get('/', (req, res) => {
     res.render('index', {
         user: req.session.user,
         messages: req.flash('success')
@@ -109,8 +117,8 @@ app.post('/register', validateRegistration, (req, res) => {
 // Login routes to render login page below
 app.get('/login', (req, res) => {
     res.render('login', {
-        errors: req.flash('error'),        
-        messages: req.flash('success')     
+        errors: req.flash('error'),
+        messages: req.flash('success')
     });
 });
 
@@ -139,8 +147,62 @@ app.post('/login', (req, res) => {
 });
 
 // Dashboard route
+// Dashboard route - shows budgets and expenses for logged-in user
 app.get('/dashboard', checkAuthenticated, (req, res) => {
-    res.render('dashboard', { user: req.session.user });
+    const userId = req.session.user.id;
+
+    // Get current month as 'YYYY-MM' for filtering budgets by month
+    const currentMonth = new Date().toISOString().slice(0, 7);
+
+    // SQL query to get budgets for the current month and the sum of expenses in those categories and month
+    const sql = `
+    SELECT 
+      b.budgetId,
+      b.category,
+      b.month,
+      b.amount AS budgeted,
+      IFNULL(SUM(e.amount), 0) AS spent
+    FROM budgets b
+    LEFT JOIN expenses e
+      ON b.userId = e.userId
+      AND b.category = e.category
+      AND MONTH(b.month) = MONTH(e.date)
+      AND YEAR(b.month) = YEAR(e.date)
+    WHERE b.userId = ?
+      AND DATE_FORMAT(b.month, '%Y-%m') = ?
+    GROUP BY b.budgetId, b.category, b.month, b.amount
+    ORDER BY b.category
+  `;
+
+    // Execute the budgets query with userId and currentMonth parameters
+    connection.query(sql, [userId, currentMonth], (err, budgets) => {
+        if (err) {
+            console.error('Error fetching budgets:', err);
+            return res.status(500).send('Database error fetching budgets');
+        }
+
+        // Optional: Also fetch recent expenses to display alongside budgets
+        const expensesSql = `
+      SELECT * FROM expenses 
+      WHERE userId = ?
+      ORDER BY date DESC
+      LIMIT 5
+    `;
+
+        connection.query(expensesSql, [userId], (err, expenses) => {
+            if (err) {
+                console.error('Error fetching expenses:', err);
+                return res.status(500).send('Database error fetching expenses');
+            }
+
+            // Render the dashboard view, passing user info, budgets, and expenses
+            res.render('dashboard', {
+                user: req.session.user,
+                budgets,
+                expenses
+            });
+        });
+    });
 });
 
 // Admin dashboard route
@@ -168,18 +230,41 @@ app.post('/addExpense', checkAuthenticated, (req, res) => {
     });
 });
 
+// Add Budget route
+app.get('/addBudget', checkAuthenticated, (req, res) => {
+    res.render('addBudget', { user: req.session.user });
+});
+
+app.post('/addBudget', checkAuthenticated, (req, res) => {
+    const userId = req.session.user.id;
+    const { category, month, amount } = req.body;
+
+    // Make month into a full date (e.g. 2025-07 → 2025-07-01)
+    const formattedMonth = month + '-01';
+
+    const sql = 'INSERT INTO budgets (userId, category, month, amount) VALUES (?, ?, ?, ?)';
+    connection.query(sql, [userId, category, formattedMonth, amount], (err, result) => {
+        if (err) {
+            console.error('Error adding budget:', err);
+            return res.status(500).send('Error saving budget');
+        }
+        req.flash('success', 'Budget added successfully!');
+        res.redirect('/dashboard');
+    });
+});
+
 app.get('/editBudget/:id', (req, res) => {
     const budgetId = req.params.id;
     const sql = 'SELECT * FROM budgets WHERE budgetId =?';
 
-    connection.query( sql, [budgetId], (error, results) => {
+    connection.query(sql, [budgetId], (error, results) => {
         if (error) {
             console.error('Database query error:', error.message);
             return res.status(500).send('Error retrieving budget by ID');
         }
 
         if (results.length > 0) {
-            res.render('editBudget', {budget: results[0] });
+            res.render('editBudget', { budget: results[0] });
 
         } else {
             res.status(404).send('Budget not found');
@@ -195,10 +280,10 @@ app.post('/editBudget/:id', (req, res) => { //If got image --> upload.single('im
     const sql = 'UPDATE budgets SET category = ? , date = ?, amount = ?, description = ? WHERE budgetId = ?';
 
     // Insert the new product into the database
-    connection.query( sql, [category, date, amount, description, budgetId], (error, results) => {
+    connection.query(sql, [category, date, amount, description, budgetId], (error, results) => {
         if (error) {
             // Handle any error that occurs during the database operation
-            console.error("Error updating budget:",error);
+            console.error("Error updating budget:", error);
             res.status(500).send('Error updating budget');
         } else {
             //Send a success responsse
