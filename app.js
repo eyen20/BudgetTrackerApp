@@ -168,6 +168,45 @@ app.post('/addExpense', checkAuthenticated, (req, res) => {
     });
 });
 
+app.get('/editBudget/:id', (req, res) => {
+    const budgetId = req.params.id;
+    const sql = 'SELECT * FROM budgets WHERE budgetId =?';
+
+    connection.query( sql, [budgetId], (error, results) => {
+        if (error) {
+            console.error('Database query error:', error.message);
+            return res.status(500).send('Error retrieving budget by ID');
+        }
+
+        if (results.length > 0) {
+            res.render('editBudget', {budget: results[0] });
+
+        } else {
+            res.status(404).send('Budget not found');
+        }
+    });
+});
+
+app.post('/editBudget/:id', (req, res) => { //If got image --> upload.single('image')
+    const budgetId = req.params.id;
+    // Extract product data from the request body
+    const { category, date, amount, description } = req.body;
+
+    const sql = 'UPDATE budgets SET category = ? , date = ?, amount = ?, description = ? WHERE budgetId = ?';
+
+    // Insert the new product into the database
+    connection.query( sql, [category, date, amount, description, budgetId], (error, results) => {
+        if (error) {
+            // Handle any error that occurs during the database operation
+            console.error("Error updating budget:",error);
+            res.status(500).send('Error updating budget');
+        } else {
+            //Send a success responsse
+            res.redirect('/');
+        }
+    });
+});
+
 // Logout route
 app.get('/logout', (req, res) => {
     req.session.destroy();
