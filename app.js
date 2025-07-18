@@ -81,12 +81,26 @@ app.get('/',  (req, res) => {
     });
 });
 
+app.get('/register', (req, res) => {
+    res.render('register', {
+        messages: req.flash('success'),
+        errors: req.flash('error'),
+        formData: req.flash('formData')[0] || {}
+    });
+});
+
 // Integrate into the registration route
 app.post('/register', validateRegistration, (req, res) => {
     const { username, email, password, address, contact, role } = req.body;
+
     const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA(?), ?, ?, ?)';
     connection.query(sql, [username, email, password, address, contact, role], (err, result) => {
-        if (err) throw err;
+        if (err) {
+            req.flash('error', 'Registration failed.');
+            req.flash('formData', req.body); // <--- this saves the values they already typed
+            return res.redirect('/register');
+        }
+
         req.flash('success', 'Registration successful! Please log in.');
         res.redirect('/login');
     });
