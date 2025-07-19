@@ -33,7 +33,7 @@
     <h2 class="text-center mb-4">Update Budget</h2>
     
     <% if (budget) { %>
-      <form action="/updateBudget/<%= budget.budgetId %>" method="POST" enctype="multipart/form-data" class="mx-auto" style="max-width: 500px;">
+      <form action="/updateBudget/<%= budget.budgetId %>" method="POST" class="mx-auto" style="max-width: 500px;">
         <div class="mb-3">
           <label for="title" class="form-label">Expense Title</label>
           <input type="text" class="form-control" id="title" name="title" value="<%= budget.title %>" required>
@@ -51,7 +51,7 @@
 
         <div class="mb-4">
           <label for="date" class="form-label">Date</label>
-          <input class="form-control" type="date" id="date" name="date" value="<%= budget.date %>" required>
+          <input type="date" class="form-control" id="date" name="date" value="<%= new Date(budget.date).toISOString().split('T')[0] %>" required>
         </div>
 
         <div class="d-grid">
@@ -59,7 +59,7 @@
         </div>
       </form>
     <% } else { %>
-      <p class="text-center">No budget found.</p>
+      <p class="text-center">No budget was found.</p>
     <% } %>
   </div>
 </body>
