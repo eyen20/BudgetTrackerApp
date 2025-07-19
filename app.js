@@ -286,7 +286,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
             }
 
             if (results.length > 0) {
-                res.render('editBudget', { budget: results[0] });
+                res.render('updateBudget', { budget: results[0] });
 
             } else {
                 res.status(404).send('Budget not found');
@@ -327,7 +327,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
             }
 
             if (results.length > 0) {
-                res.render('editExpense', { expense: results[0] });
+                res.render('updateExpense', { expense: results[0] });
 
             } else {
                 res.status(404).send('Expense not found');
