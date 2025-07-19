@@ -35,13 +35,13 @@
     <% if (budget) { %>
       <form action="/updateBudget/<%= budget.budgetId %>" method="POST" class="mx-auto" style="max-width: 500px;">
         <div class="mb-3">
-          <label for="title" class="form-label">Expense Title</label>
-          <input type="text" class="form-control" id="title" name="title" value="<%= budget.title %>" required>
+          <label for="category" class="form-label">Category:</label>
+          <input type="text" class="form-control" id="category" name="category" value="<%= budget.category %>" required>
         </div>
 
         <div class="mb-3">
-          <label for="category" class="form-label">Category</label>
-          <input type="text" class="form-control" id="category" name="category" value="<%= budget.category %>" required>
+          <label for="month" class="form-label">Month:</label>
+          <input type="text" class="form-control" id="month" name="month" value="<%= budget.month %>" required>
         </div>
 
         <div class="mb-3">
@@ -49,13 +49,8 @@
           <input type="number" class="form-control" id="amount" name="amount" min="0" step="0.01" value="<%= budget.amount %>" required>
         </div>
 
-        <div class="mb-4">
-          <label for="date" class="form-label">Date</label>
-          <input type="date" class="form-control" id="date" name="date" value="<%= new Date(budget.date).toISOString().split('T')[0] %>" required>
-        </div>
-
         <div class="d-grid">
-          <button type="submit" class="btn btn-primary">Update Expense</button>
+          <button type="submit" class="btn btn-primary">Update Budget</button>
         </div>
       </form>
     <% } else { %>
