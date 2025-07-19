@@ -267,11 +267,13 @@ app.post('/addBudget', checkAuthenticated, (req, res) => {
     });
 });
 
-app.get('/editBudget/:id', (req, res) => {
+// Update Budget route
+app.get('/updateBudget/:id', (req, res) => {
     const budgetId = req.params.id;
-    const sql = 'SELECT * FROM budgets WHERE budgetId =?';
+    const userId = req.session.user.id;
+    const sql = 'SELECT * FROM budgets WHERE budgetId =? AND userId = ?';
 
-    connection.query(sql, [budgetId], (error, results) => {
+    connection.query(sql, [budgetId, userId], (error, results) => {
         if (error) {
             console.error('Database query error:', error.message);
             return res.status(500).send('Error retrieving budget by ID');
@@ -286,15 +288,15 @@ app.get('/editBudget/:id', (req, res) => {
     });
 });
 
-app.post('/editBudget/:id', (req, res) => { //If got image --> upload.single('image')
+app.post('/updateBudget/:id', (req, res) => {
     const budgetId = req.params.id;
     // Extract product data from the request body
-    const { category, date, amount, description } = req.body;
+    const { category, formattedMonth, amount } = req.body;
 
-    const sql = 'UPDATE budgets SET category = ? , date = ?, amount = ?, description = ? WHERE budgetId = ?';
+    const sql = 'UPDATE budgets SET category = ? , month = ?, amount = ? WHERE budgetId = ? AND userId = ?';
 
     // Insert the new product into the database
-    connection.query(sql, [category, date, amount, description, budgetId], (error, results) => {
+    connection.query(sql, [category, formattedMonth, amount, budgetId, req.session.user.id], (error, results) => {
         if (error) {
             // Handle any error that occurs during the database operation
             console.error("Error updating budget:", error);
@@ -305,6 +307,48 @@ app.post('/editBudget/:id', (req, res) => { //If got image --> upload.single('im
         }
     });
 });
+
+// Update Expense route
+app.get('/updateExpenses/:id', (req, res) => {
+    const expenseId = req.params.id;
+    const userId = req.session.user.id;
+    const sql = 'SELECT * FROM expenses WHERE expenseId =? AND userId = ?';
+
+    connection.query(sql, [expenseId, userId], (error, results) => {
+        if (error) {
+            console.error('Database query error:', error.message);
+            return res.status(500).send('Error retrieving expense by ID');
+        }
+
+        if (results.length > 0) {
+            res.render('editExpense', { expense: results[0] });
+
+        } else {
+            res.status(404).send('Expense not found');
+        }
+    });
+});
+
+app.post('/updateExpenses/:id', (req, res) => {
+    const expenseId = req.params.id;
+    // Extract product data from the request body
+    const { title, category, amount, date } = req.body;
+
+    const sql = 'UPDATE expenses SET title = ? , category = ?, amount = ?, date = ? WHERE expenseId = ? AND userId = ?';
+
+    // Insert the new product into the database
+    connection.query(sql, [title, category, amount, date, expenseId, req.session.user.id], (error, results) => {
+        if (error) {
+            // Handle any error that occurs during the database operation
+            console.error("Error updating expense:", error);
+            res.status(500).send('Error updating expense');
+        } else {
+            //Send a success responsse
+            res.redirect('/');
+        }
+    });
+});
+
 
 // Logout route
 app.get('/logout', (req, res) => {
