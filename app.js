@@ -315,7 +315,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
     });
 
     // Update Expense route
-    app.get('/updateExpenses/:id', (req, res) => {
+    app.get('/updateExpense/:id', (req, res) => {
         const expenseId = req.params.id;
         const userId = req.session.user.id;
         const sql = 'SELECT * FROM expenses WHERE expenseId =? AND userId = ?';
