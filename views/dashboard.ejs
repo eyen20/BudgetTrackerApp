@@ -46,6 +46,7 @@
             <th>Budgeted</th>
             <th>Spent</th>
             <th>Remaining</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -68,6 +69,9 @@
               <td class="<%= remaining < 0 ? 'text-danger' : 'text-success' %>">
                 $<%= remaining.toFixed(2) %>
               </td>
+              <td>
+                <a href="/updateBudget/<%= b.budgetId %>" class="btn btn-secondary">Update</a>
+              </td>
             </tr>
             <% }) %>
         </tbody>
@@ -88,6 +92,7 @@
                   <th>Category</th>
                   <th>Amount</th>
                   <th>Date</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -103,6 +108,9 @@
                     </td>
                     <td>
                       <%= new Date(e.date).toISOString().split('T')[0] %>
+                    </td>
+                    <td>
+                      <a href="/updateExpense/<%= e.expenseId %>" class="btn btn-secondary">Update</a>
                     </td>
                   </tr>
                   <% }) %>
