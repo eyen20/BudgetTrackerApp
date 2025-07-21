@@ -245,7 +245,7 @@ app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
     });
 });
 
-app.get("/admin/:id", (req, res) => {
+app.get("/admin/user/:id", (req, res) => {
     const userId = req.params.id;
     const sql = "SELECT * FROM users WHERE id = ?";
     connection.query(sql, [userId], (error, results) => {
@@ -283,7 +283,6 @@ app.get("/admin/:id", (req, res) => {
         WHERE userId = ?
         AND DATE_FORMAT(date, '%Y-%m') = ?
         ORDER BY date DESC
-        LIMIT 5
     `;
 
         connection.query(sqlBudgets, [userId, selectedMonth], (error, budgets) => {
