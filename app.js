@@ -266,7 +266,7 @@ app.get("/admin/user/:id", (req, res) => {
         const selectedMonth = `${year}-${month}`;  // e.g. "2025-07"
 
         const sqlBudgets = `
-        SELECT b.budgetId,b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
+        SELECT b.budgetId, b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
         FROM budgets b
         LEFT JOIN expenses e
         ON b.userId = e.userId
@@ -274,7 +274,7 @@ app.get("/admin/user/:id", (req, res) => {
         AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
         WHERE b.userId = ?
         AND DATE_FORMAT(b.month, '%Y-%m') = ?  -- This line filters by currentMonth
-        GROUP BY b.category, b.month
+        GROUP BY b.budgetId, b.category, b.month
         ORDER BY b.category
     `;
 
