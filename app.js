@@ -464,7 +464,7 @@ app.get('/deleteProduct/:id', (req, res) => {
             res.status(500).send('Error deleting product');
         } else {
             // Send a success response
-            res.redirect('/inventory');
+            res.redirect('/dashboard');
         }
     });
 });
