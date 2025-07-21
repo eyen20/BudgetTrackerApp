@@ -241,6 +241,91 @@ app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
     });
 });
 
+app.get("/admin/user/:id", (req, res) => {
+    const userId = req.params.id;
+    const sql = "SELECT * FROM users WHERE id = ?";
+    connection.query(sql, [userId], (error, results) => {
+        if (error) {
+            console.error("Database query error:", error.message);
+            return res.status(500).send("Error Retrieving user by ID");
+        }
+        if (results.length === 0) {
+            return res.status(404).send("User not found");
+        }
+        const user = results[0];
+
+        const now = new Date();
+        const year = now.getFullYear();
+        const monthNum = now.getMonth() + 1;
+        const month = monthNum < 10 ? '0' + monthNum : '' + monthNum;
+
+        const selectedMonth = `${year}-${month}`;  // e.g. "2025-07"
+
+        const sqlBudgets = `
+        SELECT b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
+        FROM budgets b
+        LEFT JOIN expenses e
+        ON b.userId = e.userId
+        AND b.category = e.category
+        AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
+        WHERE b.userId = ?
+        AND DATE_FORMAT(b.month, '%Y-%m') = ?  -- This line filters by currentMonth
+        GROUP BY b.category, b.month
+        ORDER BY b.category
+    `;
+
+        const sqlExpenses = `
+        SELECT * FROM expenses
+        WHERE userId = ?
+        AND DATE_FORMAT(date, '%Y-%m') = ?
+        ORDER BY date DESC
+        LIMIT 5
+    `;
+
+        connection.query(sqlBudgets, [userId, selectedMonth], (error, budgets) => {
+            if (error) {
+                console.error('Database query error:', error.message);
+                return res.status(500).send('Error fetching budgets');
+            }
+
+            if (budgets.length > 0) {
+                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                const formattedBudgets = budgets.map(b => {
+                    const date = new Date(b.month);
+                    const monthName = months[date.getMonth()];
+                    const year = date.getFullYear();
+                    return {
+                        ...b,
+                        formattedMonth: monthName + ' ' + year
+                    };
+                });
+
+                connection.query(sqlExpenses, [userId, selectedMonth], (err, expenses) => {
+                    if (err) {
+                        console.error('Database query error:', err.message);
+                        return res.status(500).send('Error fetching expenses');
+                    }
+
+                    res.render('user', {
+                        user: user,
+                        budgets: formattedBudgets,
+                        expenses,
+                        selectedMonth
+                    });
+                });
+
+            } else {
+                res.render('user', {
+                    user:   user,
+                    budgets: [],
+                    expenses: [],
+                    selectedMonth
+                });
+            }
+        });
+    });
+});
+
 // Add Expense route
 app.get('/addExpense', checkAuthenticated, (req, res) => {
     res.render('addExpense', { user: req.session.user });
