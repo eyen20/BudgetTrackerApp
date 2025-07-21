@@ -245,7 +245,7 @@ app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
     });
 });
 
-app.get("/admin/user/:id", (req, res) => {
+app.get("/admin/:id", (req, res) => {
     const userId = req.params.id;
     const sql = "SELECT * FROM users WHERE id = ?";
     connection.query(sql, [userId], (error, results) => {
