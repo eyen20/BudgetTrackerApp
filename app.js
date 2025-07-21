@@ -192,7 +192,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
             const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             const formattedBudgets = budgets.map(b => {
                 const date = new Date(b.month);
-                const monthName = months[date.getMonth()]; 
+                const monthName = months[date.getMonth()];
                 const year = date.getFullYear();
                 return {
                     ...b,
@@ -225,142 +225,153 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
     });
 });
 
-    // Admin dashboard route
-    app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
-        res.render('admin', { user: req.session.user });
-    });
+// Admin dashboard route
+app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
+    const sql = "SELECT * FROM users";
+    connection.query(sql, (error, results) => {
+        if (error) {
+            console.error("Database query error:", error.message);
+            return res.status(500).send("Error Retrieving user by ID");
+        }
 
-    // Add Expense route
-    app.get('/addExpense', checkAuthenticated, (req, res) => {
-        res.render('addExpense', { user: req.session.user });
-    });
-
-    app.post('/addExpense', checkAuthenticated, (req, res) => {
-        const { title, category, amount, date } = req.body;
-        const userId = req.session.user.id;
-
-        const sql = 'INSERT INTO expenses (userId, title, category, amount, date) VALUES (?, ?, ?, ?, ?)';
-        connection.query(sql, [userId, title, category, amount, date], (err, result) => {
-            if (err) {
-                console.error('Error adding expense:', err);
-                return res.status(500).send('Error adding expense');
-            }
-            req.flash('success', 'Expense added successfully!');
-            res.redirect('/dashboard');
+        res.render('admin', {
+            user: req.session.user,
+            users: results
         });
     });
+});
 
-    // Add Budget route
-    app.get('/addBudget', checkAuthenticated, (req, res) => {
-        res.render('addBudget', { user: req.session.user });
+// Add Expense route
+app.get('/addExpense', checkAuthenticated, (req, res) => {
+    res.render('addExpense', { user: req.session.user });
+});
+
+app.post('/addExpense', checkAuthenticated, (req, res) => {
+    const { title, category, amount, date } = req.body;
+    const userId = req.session.user.id;
+
+    const sql = 'INSERT INTO expenses (userId, title, category, amount, date) VALUES (?, ?, ?, ?, ?)';
+    connection.query(sql, [userId, title, category, amount, date], (err, result) => {
+        if (err) {
+            console.error('Error adding expense:', err);
+            return res.status(500).send('Error adding expense');
+        }
+        req.flash('success', 'Expense added successfully!');
+        res.redirect('/dashboard');
     });
+});
 
-    app.post('/addBudget', checkAuthenticated, (req, res) => {
-        const userId = req.session.user.id;
-        const { category, month, amount } = req.body;
+// Add Budget route
+app.get('/addBudget', checkAuthenticated, (req, res) => {
+    res.render('addBudget', { user: req.session.user });
+});
 
-        // Make month into a full date (e.g. 2025-07 → 2025-07-01)
-        const formattedMonth = month + '-01';
+app.post('/addBudget', checkAuthenticated, (req, res) => {
+    const userId = req.session.user.id;
+    const { category, month, amount } = req.body;
 
-        const sql = 'INSERT INTO budgets (userId, category, month, amount) VALUES (?, ?, ?, ?)';
-        connection.query(sql, [userId, category, formattedMonth, amount], (err, result) => {
-            if (err) {
-                console.error('Error adding budget:', err);
-                return res.status(500).send('Error saving budget');
-            }
-            req.flash('success', 'Budget added successfully!');
-            res.redirect('/dashboard');
-        });
+    // Make month into a full date (e.g. 2025-07 → 2025-07-01)
+    const formattedMonth = month + '-01';
+
+    const sql = 'INSERT INTO budgets (userId, category, month, amount) VALUES (?, ?, ?, ?)';
+    connection.query(sql, [userId, category, formattedMonth, amount], (err, result) => {
+        if (err) {
+            console.error('Error adding budget:', err);
+            return res.status(500).send('Error saving budget');
+        }
+        req.flash('success', 'Budget added successfully!');
+        res.redirect('/dashboard');
     });
+});
 
-    // Update Budget route
-    app.get('/updateBudget/:id', (req, res) => {
-        const budgetId = req.params.id;
-        const userId = req.session.user.id;
-        const sql = 'SELECT * FROM budgets WHERE budgetId =? AND userId = ?';
+// Update Budget route
+app.get('/updateBudget/:id', (req, res) => {
+    const budgetId = req.params.id;
+    const userId = req.session.user.id;
+    const sql = 'SELECT * FROM budgets WHERE budgetId =? AND userId = ?';
 
-        connection.query(sql, [budgetId, userId], (error, results) => {
-            if (error) {
-                console.error('Database query error:', error.message);
-                return res.status(500).send('Error retrieving budget by ID');
-            }
+    connection.query(sql, [budgetId, userId], (error, results) => {
+        if (error) {
+            console.error('Database query error:', error.message);
+            return res.status(500).send('Error retrieving budget by ID');
+        }
 
-            if (results.length > 0) {
-                res.render('updateBudget', { budget: results[0] });
+        if (results.length > 0) {
+            res.render('updateBudget', { budget: results[0] });
 
-            } else {
-                res.status(404).send('Budget not found');
-            }
-        });
+        } else {
+            res.status(404).send('Budget not found');
+        }
     });
+});
 
-    app.post('/updateBudget/:id', (req, res) => {
-        const budgetId = req.params.id;
-        // Extract product data from the request body
-        const { category, formattedMonth, amount } = req.body;
+app.post('/updateBudget/:id', (req, res) => {
+    const budgetId = req.params.id;
+    // Extract product data from the request body
+    const { category, formattedMonth, amount } = req.body;
 
-        const sql = 'UPDATE budgets SET category = ? , month = ?, amount = ? WHERE budgetId = ? AND userId = ?';
+    const sql = 'UPDATE budgets SET category = ? , month = ?, amount = ? WHERE budgetId = ? AND userId = ?';
 
-        // Insert the new product into the database
-        connection.query(sql, [category, formattedMonth, amount, budgetId, req.session.user.id], (error, results) => {
-            if (error) {
-                // Handle any error that occurs during the database operation
-                console.error("Error updating budget:", error);
-                res.status(500).send('Error updating budget');
-            } else {
-                //Send a success responsse
-                res.redirect('/');
-            }
-        });
+    // Insert the new product into the database
+    connection.query(sql, [category, formattedMonth, amount, budgetId, req.session.user.id], (error, results) => {
+        if (error) {
+            // Handle any error that occurs during the database operation
+            console.error("Error updating budget:", error);
+            res.status(500).send('Error updating budget');
+        } else {
+            //Send a success responsse
+            res.redirect('/');
+        }
     });
+});
 
-    // Update Expense route
-    app.get('/updateExpense/:id', (req, res) => {
-        const expenseId = req.params.id;
-        const userId = req.session.user.id;
-        const sql = 'SELECT * FROM expenses WHERE expenseId =? AND userId = ?';
+// Update Expense route
+app.get('/updateExpense/:id', (req, res) => {
+    const expenseId = req.params.id;
+    const userId = req.session.user.id;
+    const sql = 'SELECT * FROM expenses WHERE expenseId =? AND userId = ?';
 
-        connection.query(sql, [expenseId, userId], (error, results) => {
-            if (error) {
-                console.error('Database query error:', error.message);
-                return res.status(500).send('Error retrieving expense by ID');
-            }
+    connection.query(sql, [expenseId, userId], (error, results) => {
+        if (error) {
+            console.error('Database query error:', error.message);
+            return res.status(500).send('Error retrieving expense by ID');
+        }
 
-            if (results.length > 0) {
-                res.render('updateExpense', { expense: results[0] });
+        if (results.length > 0) {
+            res.render('updateExpense', { expense: results[0] });
 
-            } else {
-                res.status(404).send('Expense not found');
-            }
-        });
+        } else {
+            res.status(404).send('Expense not found');
+        }
     });
+});
 
-    app.post('/updateExpenses/:id', (req, res) => {
-        const expenseId = req.params.id;
-        // Extract product data from the request body
-        const { title, category, amount, date } = req.body;
+app.post('/updateExpenses/:id', (req, res) => {
+    const expenseId = req.params.id;
+    // Extract product data from the request body
+    const { title, category, amount, date } = req.body;
 
-        const sql = 'UPDATE expenses SET title = ? , category = ?, amount = ?, date = ? WHERE expenseId = ? AND userId = ?';
+    const sql = 'UPDATE expenses SET title = ? , category = ?, amount = ?, date = ? WHERE expenseId = ? AND userId = ?';
 
-        // Insert the new product into the database
-        connection.query(sql, [title, category, amount, date, expenseId, req.session.user.id], (error, results) => {
-            if (error) {
-                // Handle any error that occurs during the database operation
-                console.error("Error updating expense:", error);
-                res.status(500).send('Error updating expense');
-            } else {
-                //Send a success responsse
-                res.redirect('/');
-            }
-        });
+    // Insert the new product into the database
+    connection.query(sql, [title, category, amount, date, expenseId, req.session.user.id], (error, results) => {
+        if (error) {
+            // Handle any error that occurs during the database operation
+            console.error("Error updating expense:", error);
+            res.status(500).send('Error updating expense');
+        } else {
+            //Send a success responsse
+            res.redirect('/');
+        }
     });
+});
 
 
-    // Logout route
-    app.get('/logout', (req, res) => {
-        req.session.destroy();
-        res.redirect('/');
-    });
+// Logout route
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+});
 
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
