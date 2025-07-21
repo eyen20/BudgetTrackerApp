@@ -166,7 +166,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
     const selectedMonth = `${year}-${month}`;  // e.g. "2025-07"
 
     const sqlBudgets = `
-    SELECT b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
+    SELECT b.budgetId, b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
     FROM budgets b
     LEFT JOIN expenses e
       ON b.userId = e.userId
