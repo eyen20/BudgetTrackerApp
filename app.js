@@ -396,13 +396,14 @@ app.get('/updateBudget/:id', (req, res) => {
 
 app.post('/updateBudget/:id', (req, res) => {
     const budgetId = req.params.id;
+    const userId = req.session.user.id;
     // Extract product data from the request body
     const { category, month, amount } = req.body;
 
     const sql = 'UPDATE budgets SET category = ? , month = ?, amount = ? WHERE budgetId = ? AND userId = ?';
 
     // Insert the new product into the database
-    connection.query(sql, [category, month, amount, budgetId, req.session.user.id], (error, results) => {
+    connection.query(sql, [category, month, amount, budgetId, userId], (error, results) => {
         if (error) {
             // Handle any error that occurs during the database operation
             console.error("Error updating budget:", error);
