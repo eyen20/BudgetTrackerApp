@@ -34,72 +34,68 @@
         </h2>
         <hr />
 
-        <!-- Budget Summary Table -->
-        <h3>
-            <%= user.username %>'s Budgets
-        </h3>
-        <% if (budgets && budgets.length> 0) { %>
-            <table class="table table-bordered mt-3">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Month</th>
-                        <th>Budgeted</th>
-                        <th>Spent</th>
-                        <th>Remaining</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% budgets.forEach(b=> {
-                        const budgeted = Number(b.budgeted);
-                        const spent = Number(b.spent);
-                        const remaining = budgeted - spent;
-                        %>
-                        <tr>
-                            <td>
-                                <%= b.category %>
-                            </td>
-                            <td>
-                                <%= b.formattedMonth %>
-                            </td>
-                            <td>$<%= budgeted.toFixed(2) %>
-                            </td>
-                            <td>$<%= spent.toFixed(2) %>
-                            </td>
-                            <td class="<%= remaining < 0 ? 'text-danger' : 'text-success' %>">
-                                $<%= remaining.toFixed(2) %>
-                            </td>
-                            <hr />
-                            <!-- Recent Expenses -->
-                            <h3>
-                                <%= user.username %>'s Recent Expenses
-                            </h3>
-                            <% if (expenses && expenses.length> 0) { %>
-                                <table class="table table-striped mt-3">
-                                    <thead>
-                                        <tr>
-                                            <th>Title</th>
-                                            <th>Category</th>
-                                            <th>Amount</th>
-                                            <th>Date</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% expenses.forEach(e=> { %>
-                                            <tr>
-                                                <td>
-                                                    <%= e.title %>
-                                                </td>
-                                                <td>
-                                                    <%= e.category %>
-                                                </td>
-                                                <td>$<%= Number(e.amount).toFixed(2) %>
-                                                </td>
-                                                <td>
-                                                    <%= new Date(e.date).toISOString().split('T')[0] %>
-                                                </td>
+            <!-- Budgets Table -->
+        <h3><%= user.username %>'s Budgets</h3>
+        <% if (budgets && budgets.length > 0) { %>
+        <table class="table table-bordered mt-3">
+            <thead>
+            <tr>
+                <th>Category</th>
+                <th>Month</th>
+                <th>Budgeted</th>
+                <th>Spent</th>
+                <th>Remaining</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% budgets.forEach(b => {
+                const budgeted = Number(b.budgeted);
+                const spent = Number(b.spent);
+                const remaining = budgeted - spent;
+            %>
+                <tr>
+                <td><%= b.category %></td>
+                <td><%= b.formattedMonth %></td>
+                <td>$<%= budgeted.toFixed(2) %></td>
+                <td>$<%= spent.toFixed(2) %></td>
+                <td class="<%= remaining < 0 ? 'text-danger' : 'text-success' %>">$<%= remaining.toFixed(2) %></td>
+                <td>...</td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+        <% } %>
+
+        <!-- 🔥 Put this AFTER budgets loop -->
+        <h3><%= user.username %>'s Recent Expenses</h3>
+        <% if (expenses && expenses.length > 0) { %>
+        <table class="table table-striped mt-3">
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% expenses.forEach(e => { %>
+                <tr>
+                <td><%= e.title %></td>
+                <td><%= e.category %></td>
+                <td>$<%= Number(e.amount).toFixed(2) %></td>
+                <td><%= new Date(e.date).toISOString().split('T')[0] %></td>
+                <td>...</td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+        <% } else { %>
+        <p>No recent expenses found.</p>
+        <% } %>
+
     </div>
 
 </body>
