@@ -140,9 +140,13 @@ app.post('/login', (req, res) => {
         if (results.length > 0) {
             req.session.user = results[0];
             req.flash('success', 'Login successful!');
-            res.redirect('/dashboard');
+            if (req.session.user.role === 'user') {
+                res.redirect('/dashboard');
+            } else {
+                res.redirect('/admin');
+            }
         } else {
-            // Invalid login credientials
+            // Invalid login credentials
             req.flash('error', 'Invalid email or password');
             res.redirect('/login');
         }
