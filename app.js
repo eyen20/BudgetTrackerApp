@@ -346,7 +346,7 @@ app.get('/updateExpense/:id', (req, res) => {
     });
 });
 
-app.post('/updateExpenses/:id', (req, res) => {
+app.post('/updateExpense/:id', (req, res) => {
     const expenseId = req.params.id;
     // Extract product data from the request body
     const { title, category, amount, date } = req.body;
