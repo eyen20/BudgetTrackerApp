@@ -455,10 +455,11 @@ app.post('/updateExpense/:id', (req, res) => {
     });
 });
 
-app.get('/deleteProduct/:id', (req, res) => {
+app.get('/deleteExpense/:id', (req, res) => {
     const expenseId = req.params.id;
+    const UserId=req.session.user.id;
 
-    connection.query('DELETE FROM expenses WHERE expenseId = ?', [expenseId], (error, results) => {
+    connection.query('DELETE FROM expenses WHERE expenseId = ? AND userId = ?', [expenseId, userId], (error, results) => {
         if (error) {
             // Handle any error that occurs during the database operation
             console.error("Error deleting product:", error);
