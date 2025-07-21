@@ -174,7 +174,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
       AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
     WHERE b.userId = ?
       AND DATE_FORMAT(b.month, '%Y-%m') = ?  -- This line filters by currentMonth
-    GROUP BY b.category, b.month
+    GROUP BY b.budgetId, b.category, b.month
     ORDER BY b.category
   `;
 
