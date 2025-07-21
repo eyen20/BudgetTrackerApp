@@ -401,8 +401,11 @@ app.post('/updateBudget/:id', (req, res) => {
 
     const sql = 'UPDATE budgets SET category = ? , month = ?, amount = ? WHERE budgetId = ? AND userId = ?';
 
+    // Make month into a full date (e.g. 2025-07 → 2025-07-01)
+    const formattedMonth = month + '-01';
+
     // Insert the new product into the database
-    connection.query(sql, [category, month, amount, budgetId, userId], (error, results) => {
+    connection.query(sql, [category, formattedMonth, amount, budgetId, userId], (error, results) => {
         if (error) {
             // Handle any error that occurs during the database operation
             console.error("Error updating budget:", error);
