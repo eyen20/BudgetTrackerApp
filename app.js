@@ -272,7 +272,7 @@ app.get('/admin/search', checkAuthenticated, checkAdmin, (req, res) => {
     OR address LIKE ? 
     OR contact LIKE ? 
     OR role LIKE ?
-    ORDER BY username
+    ORDER BY id
     `;
 
     pool.query(sql, [pattern, pattern, pattern, pattern, pattern], (err, results) => {
