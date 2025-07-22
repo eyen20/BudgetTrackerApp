@@ -282,8 +282,6 @@ app.get("/admin/user/:id", (req, res) => {
         const monthNum = now.getMonth() + 1;
         const month = monthNum < 10 ? '0' + monthNum : '' + monthNum;
 
-        const selectedMonth = `${year}-${month}`;  // e.g. "2025-07"
-
         const sqlBudgets = `
         SELECT b.budgetId, b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
         FROM budgets b
@@ -292,7 +290,6 @@ app.get("/admin/user/:id", (req, res) => {
         AND b.category = e.category
         AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
         WHERE b.userId = ?
-        AND DATE_FORMAT(b.month, '%Y-%m') = ?  -- This line filters by currentMonth
         GROUP BY b.budgetId, b.category, b.month
         ORDER BY b.category
     `;
@@ -300,11 +297,10 @@ app.get("/admin/user/:id", (req, res) => {
         const sqlExpenses = `
         SELECT * FROM expenses
         WHERE userId = ?
-        AND DATE_FORMAT(date, '%Y-%m') = ?
         ORDER BY date DESC
     `;
 
-        pool.query(sqlBudgets, [userId, selectedMonth], (error, budgets) => {
+        pool.query(sqlBudgets, [userId], (error, budgets) => {
             if (error) {
                 console.error('Database query error:', error.message);
                 return res.status(500).send('Error fetching budgets');
@@ -322,7 +318,7 @@ app.get("/admin/user/:id", (req, res) => {
                     };
                 });
 
-                pool.query(sqlExpenses, [userId, selectedMonth], (err, expenses) => {
+                pool.query(sqlExpenses, [userId], (err, expenses) => {
                     if (err) {
                         console.error('Database query error:', err.message);
                         return res.status(500).send('Error fetching expenses');
@@ -331,8 +327,7 @@ app.get("/admin/user/:id", (req, res) => {
                     res.render('user', {
                         user: user,
                         budgets: formattedBudgets,
-                        expenses,
-                        selectedMonth
+                        expenses
                     });
                 });
 
@@ -340,8 +335,7 @@ app.get("/admin/user/:id", (req, res) => {
                 res.render('user', {
                     user:   user,
                     budgets: [],
-                    expenses: [],
-                    selectedMonth
+                    expenses: []
                 });
             }
         });
