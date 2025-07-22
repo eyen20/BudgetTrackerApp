@@ -470,6 +470,26 @@ app.post('/updateExpense/:id', (req, res) => {
         }
     });
 });
+
+app.post('/deleteExpense/:id', checkAuthenticated, (req,res) => {
+    const budgetId=req.params.id;
+    const userId=req.session.user.id;
+    const sql='DELETE FROM expenses WHERE budgetId =? AND userId =?';
+
+    connection.query(sql,[budgetId,userId], (error, results) => {
+        if (error) {
+            console.error('Error deleting expense: ', error);
+            return res.status(500).send('Error deleting expense');
+        }
+        if (results.affectedRows===0) {
+            req.flash('Error!', 'Expense not found');
+            return res.status(404).send('Expense not found!');
+        }
+        req.flash('Expense deleted successfully');
+        res.redirect('/dashboard');
+    });
+});
+
 // Logout route
 app.get('/logout', (req, res) => {
     req.session.destroy();
