@@ -291,6 +291,46 @@ app.get('/admin/search', checkAuthenticated, checkAdmin, (req, res) => {
     });
 });
 
+app.post("/admin/delete_user/:id", checkAuthenticated, checkAdmin, (req,res) => {
+    const userIdDelete=req.params.id;
+    const adminId=req.session.user.id;
+
+    if (parseInt(userIdDelete)===parseInt(adminId)) {
+        req.flash("Error!", "Admin account cannot be deleted");
+        return res.redirect('/admin');
+    }
+
+    const checkUsersql="SELECT id, role FROM users WHERE id = ?";
+    pool.query(checkUsersql, [userIdDelete], (err,userResults) => {
+        if (err) {
+            console.error("Error checking user:", err.message);
+            req.flash("Error!");
+            return res.redirect('/admin');
+        }
+        if (userResults.length===0) {
+            req.flash("Error!", "User not found!");
+            return res.redirect('/admin');
+        }
+        const usertodeleteroles=userResults[0].role;
+
+        const deletesql="DELETE FROM users WHERE id = ?";
+        pool.query(deletesql,[userIdDelete], (error, results) => {
+            if (error) {
+                console.error("Database deletion error!:", error.message);
+                req.flash("Error!", "Failed to delete user");
+                return res.redirect('/admin');
+            }
+            if (results.affectedRows>0) {
+                req.flash("Success", `User id ${userIdDelete} successfully deleted`);
+                res.redirect('/admin');
+            } else {
+                req.flash("Error!", "User not found");
+                res.redirect('/admin')
+            }
+        });
+    });
+});
+
 app.get("/admin/user/:id", (req, res) => {
     const userId = req.params.id;
     const sql = "SELECT * FROM users WHERE id = ?";
@@ -497,23 +537,6 @@ app.post('/updateExpense/:id', (req, res) => {
         }
     });
 });
-
-app.get('/deleteExpense/:id', (req, res) => {
-    const expenseId = req.params.id;
-    const UserId=req.session.user.id;
-
-    pool.query('DELETE FROM expenses WHERE expenseId = ? AND userId = ?', [expenseId, userId], (error, results) => {
-        if (error) {
-            // Handle any error that occurs during the database operation
-            console.error("Error deleting product:", error);
-            res.status(500).send('Error deleting product');
-        } else {
-            // Send a success response
-            res.redirect('/dashboard');
-        }
-    });
-});
-
 
 // Logout route
 app.get('/logout', (req, res) => {
