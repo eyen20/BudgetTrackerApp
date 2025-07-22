@@ -60,10 +60,12 @@
             <% }); %>
             </tbody>
         </table>
+        <% } else { %>
+        <p>No budgets found.</p>
         <% } %>
 
-        <!-- 🔥 Put this AFTER budgets loop -->
-        <h3><%= user.username %>'s Recent Expenses</h3>
+        <!-- Expenses Table -->
+        <h3><%= user.username %>'s Expenses</h3>
         <% if (expenses && expenses.length > 0) { %>
         <table class="table table-striped mt-3">
             <thead>
@@ -86,7 +88,7 @@
             </tbody>
         </table>
         <% } else { %>
-        <p>No recent expenses found.</p>
+        <p>No expenses found.</p>
         <% } %>
 
     </div>
