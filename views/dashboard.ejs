@@ -50,6 +50,7 @@
             <th>Spent</th>
             <th>Remaining</th>
             <th>Actions</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -75,6 +76,11 @@
               <td>
                 <a href="/updateBudget/<%= b.budgetId %>" class="btn btn-secondary">Update</a>
               </td>
+              <td>
+                <form action="/deleteBudget/<%= b.budgetId %>" method="post" style="display: inline;" onsubmit="return confirm('You want to delete the budget entry?');">
+                  <button type="Submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+              </td>
             </tr>
             <% }) %>
         </tbody>
@@ -96,6 +102,7 @@
                   <th>Amount</th>
                   <th>Date</th>
                   <th>Actions</th>
+                  <th>Delete</th>
                 </tr>
               </thead>
               <tbody>
@@ -114,6 +121,11 @@
                     </td>
                     <td>
                       <a href="/updateExpense/<%= e.expenseId %>" class="btn btn-secondary">Update</a>
+                    </td>
+                    <td>
+                      <form action="/deleteExpense/<%= e.expenseId %>" method="post" style="display:inline;" onsubmit="return confirm('You want to delete the expense entry?');">
+                        <button type="Submit" class="btn btn-danger">Delete</button>
+                      </form>
                     </td>
                   </tr>
                   <% }) %>
