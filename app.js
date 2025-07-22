@@ -5,47 +5,20 @@ const flash = require('connect-flash');
 const app = express();
 
 // Set up MySQL connection
-// const connection = mysql.createConnection({
-//     host: 't6gdg4.h.filess.io',
-//     port: 61002,
-//     user: 'C237DatabaseTeam8_dulleatmad',
-//     password: '396ec17ca276380b5b1015a2727a4af8ad42d4c8',
-//     database: 'C237DatabaseTeam8_dulleatmad'
-// });
-
-// const connection = mysql.createConnection({
-//     host: 'localhost',
-//     port: 3306,
-//     user: 'root',
-//     password: 'Republic_C207',
-//     database: 'C237DatabaseTeam8_dulleatmad'
-// });
-
-// connection.connect((err) => {
-//     if (err) {
-//         console.error('Error connecting to MySQL:', err);
-//         return;
-//     }
-//     console.log('Connected to MySQL database');
-// });
-
-const pool = mysql.createPool({
+const connection = mysql.createConnection({
     host: 't6gdg4.h.filess.io',
     port: 61002,
     user: 'C237DatabaseTeam8_dulleatmad',
     password: '396ec17ca276380b5b1015a2727a4af8ad42d4c8',
-    database: 'C237DatabaseTeam8_dulleatmad',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+    database: 'C237DatabaseTeam8_dulleatmad'
 });
 
-pool.query('SELECT 1', (err) => {
-  if (err) {
-    console.error('MySQL pool connection test failed:', err);
-  } else {
-    console.log('MySQL pool connected and ready');
-  }
+connection.connect((err) => {
+    if (err) {
+        console.error('Error connecting to MySQL:', err);
+        return;
+    }
+    console.log('Connected to MySQL database');
 });
 
 // Set up view engine and middleware
@@ -124,7 +97,7 @@ app.post('/register', validateRegistration, (req, res) => {
     const { username, email, password, address, contact, role } = req.body;
 
     const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA(?), ?, ?, ?)';
-    pool.query(sql, [username, email, password, address, contact, role], (err, result) => {
+    connection.query(sql, [username, email, password, address, contact, role], (err, result) => {
         if (err) {
             req.flash('error', 'Registration failed.');
             req.flash('formData', req.body); // <--- this saves the values they already typed
@@ -153,7 +126,7 @@ app.post('/login', (req, res) => {
     }
 
     const sql = 'SELECT * FROM users WHERE email = ? AND password = SHA1(?)';
-    pool.query(sql, [email, password], (err, results) => {
+    connection.query(sql, [email, password], (err, results) => {
         if (err) throw err;
 
         if (results.length > 0) {
@@ -205,7 +178,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
     LIMIT 5
   `;
 
-    pool.query(sqlBudgets, [userId, selectedMonth], (error, budgets) => {
+    connection.query(sqlBudgets, [userId, selectedMonth], (error, budgets) => {
         if (error) {
             console.error('Database query error:', error.message);
             return res.status(500).send('Error fetching budgets');
@@ -223,7 +196,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
                 };
             });
 
-            pool.query(sqlExpenses, [userId, selectedMonth], (err, expenses) => {
+            connection.query(sqlExpenses, [userId, selectedMonth], (err, expenses) => {
                 if (err) {
                     console.error('Database query error:', err.message);
                     return res.status(500).send('Error fetching expenses');
@@ -251,7 +224,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
 // Admin dashboard route
 app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
     const sql = "SELECT * FROM users";
-    pool.query(sql, (error, results) => {
+    connection.query(sql, (error, results) => {
         if (error) {
             console.error("Database query error:", error.message);
             return res.status(500).send("Error Retrieving user by ID");
@@ -275,7 +248,7 @@ app.get('/admin/search', checkAuthenticated, checkAdmin, (req, res) => {
     ORDER BY id
     `;
 
-    pool.query(sql, [pattern, pattern, pattern, pattern, pattern], (err, results) => {
+    connection.query(sql, [pattern, pattern, pattern, pattern, pattern], (err, results) => {
         if (err) {
             console.error("Database query error:", err.message);
             return res.status(500).send("Error Retrieving user by ID");
@@ -301,7 +274,7 @@ app.post("/admin/delete_user/:id", checkAuthenticated, checkAdmin, (req,res) => 
     }
 
     const checkUsersql="SELECT id, role FROM users WHERE id = ?";
-    pool.query(checkUsersql, [userIdDelete], (err,userResults) => {
+    connection.query(checkUsersql, [userIdDelete], (err,userResults) => {
         if (err) {
             console.error("Error checking user:", err.message);
             req.flash("Error!");
@@ -314,7 +287,7 @@ app.post("/admin/delete_user/:id", checkAuthenticated, checkAdmin, (req,res) => 
         const usertodeleteroles=userResults[0].role;
 
         const deletesql="DELETE FROM users WHERE id = ?";
-        pool.query(deletesql,[userIdDelete], (error, results) => {
+        connection.query(deletesql,[userIdDelete], (error, results) => {
             if (error) {
                 console.error("Database deletion error!:", error.message);
                 req.flash("Error!", "Failed to delete user");
@@ -334,7 +307,7 @@ app.post("/admin/delete_user/:id", checkAuthenticated, checkAdmin, (req,res) => 
 app.get("/admin/user/:id", (req, res) => {
     const userId = req.params.id;
     const sql = "SELECT * FROM users WHERE id = ?";
-    pool.query(sql, [userId], (error, results) => {
+    connection.query(sql, [userId], (error, results) => {
         if (error) {
             console.error("Database query error:", error.message);
             return res.status(500).send("Error Retrieving user by ID");
@@ -367,7 +340,7 @@ app.get("/admin/user/:id", (req, res) => {
         ORDER BY date DESC
     `;
 
-        pool.query(sqlBudgets, [userId], (error, budgets) => {
+        connection.query(sqlBudgets, [userId], (error, budgets) => {
             if (error) {
                 console.error('Database query error:', error.message);
                 return res.status(500).send('Error fetching budgets');
@@ -385,7 +358,7 @@ app.get("/admin/user/:id", (req, res) => {
                     };
                 });
 
-                pool.query(sqlExpenses, [userId], (err, expenses) => {
+                connection.query(sqlExpenses, [userId], (err, expenses) => {
                     if (err) {
                         console.error('Database query error:', err.message);
                         return res.status(500).send('Error fetching expenses');
@@ -419,7 +392,7 @@ app.post('/addExpense', checkAuthenticated, (req, res) => {
     const userId = req.session.user.id;
 
     const sql = 'INSERT INTO expenses (userId, title, category, amount, date) VALUES (?, ?, ?, ?, ?)';
-    pool.query(sql, [userId, title, category, amount, date], (err, result) => {
+    connection.query(sql, [userId, title, category, amount, date], (err, result) => {
         if (err) {
             console.error('Error adding expense:', err);
             return res.status(500).send('Error adding expense');
@@ -442,7 +415,7 @@ app.post('/addBudget', checkAuthenticated, (req, res) => {
     const formattedMonth = month + '-01';
 
     const sql = 'INSERT INTO budgets (userId, category, month, amount) VALUES (?, ?, ?, ?)';
-    pool.query(sql, [userId, category, formattedMonth, amount], (err, result) => {
+    connection.query(sql, [userId, category, formattedMonth, amount], (err, result) => {
         if (err) {
             console.error('Error adding budget:', err);
             return res.status(500).send('Error saving budget');
@@ -458,7 +431,7 @@ app.get('/updateBudget/:id', (req, res) => {
     const userId = req.session.user.id;
     const sql = 'SELECT * FROM budgets WHERE budgetId =? AND userId = ?';
 
-    pool.query(sql, [budgetId, userId], (error, results) => {
+    connection.query(sql, [budgetId, userId], (error, results) => {
         if (error) {
             console.error('Database query error:', error.message);
             return res.status(500).send('Error retrieving budget by ID');
@@ -485,7 +458,7 @@ app.post('/updateBudget/:id', (req, res) => {
     const formattedMonth = month + '-01';
 
     // Insert the new product into the database
-    pool.query(sql, [category, formattedMonth, amount, budgetId, userId], (error, results) => {
+    connection.query(sql, [category, formattedMonth, amount, budgetId, userId], (error, results) => {
         if (error) {
             // Handle any error that occurs during the database operation
             console.error("Error updating budget:", error);
@@ -503,7 +476,7 @@ app.get('/updateExpense/:id', (req, res) => {
     const userId = req.session.user.id;
     const sql = 'SELECT * FROM expenses WHERE expenseId =? AND userId = ?';
 
-    pool.query(sql, [expenseId, userId], (error, results) => {
+    connection.query(sql, [expenseId, userId], (error, results) => {
         if (error) {
             console.error('Database query error:', error.message);
             return res.status(500).send('Error retrieving expense by ID');
@@ -526,7 +499,7 @@ app.post('/updateExpense/:id', (req, res) => {
     const sql = 'UPDATE expenses SET title = ? , category = ?, amount = ?, date = ? WHERE expenseId = ? AND userId = ?';
 
     // Insert the new product into the database
-    pool.query(sql, [title, category, amount, date, expenseId, req.session.user.id], (error, results) => {
+    connection.query(sql, [title, category, amount, date, expenseId, req.session.user.id], (error, results) => {
         if (error) {
             // Handle any error that occurs during the database operation
             console.error("Error updating expense:", error);
