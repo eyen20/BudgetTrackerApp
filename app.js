@@ -366,6 +366,25 @@ app.post('/addBudget', checkAuthenticated, (req, res) => {
     });
 });
 
+app.post('/deleteBudget/:id', checkAuthenticated, (req,res) => {
+    const budgetId=req.params.id;
+    const userId=req.session.user.id;
+    const sql='DELETE FROM budgets WHERE budgetId =? AND userId =?';
+
+    connection.query(sql,[budgetId,userId], (error, results) => {
+        if (error) {
+            console.error('Error deleting budget: ', error);
+            return res.status(500).send('Error deleting budget');
+        }
+        if (results.affectedRows===0) {
+            req.flash('Error!', 'Budget not found');
+            return res.status(404).send('Budget not found!');
+        }
+        req.flash('Budget deleted successfully');
+        res.redirect('/dashboard');
+    });
+});
+
 // Update Budget route
 app.get('/updateBudget/:id', (req, res) => {
     const budgetId = req.params.id;
@@ -451,7 +470,6 @@ app.post('/updateExpense/:id', (req, res) => {
         }
     });
 });
-
 // Logout route
 app.get('/logout', (req, res) => {
     req.session.destroy();
