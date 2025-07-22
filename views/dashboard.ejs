@@ -77,7 +77,7 @@
                 <a href="/updateBudget/<%= b.budgetId %>" class="btn btn-secondary">Update</a>
               </td>
               <td>
-                <form action="/deleteBudget/<%= b.budgetId %>" method="post" style="display: block;" onsubmit="return confirm('You want to delete the budget entry?');">
+                <form action="/deleteBudget/<%= b.budgetId %>" method="post" onsubmit="return confirm('You want to delete the budget entry?');">
                   <button type="Submit" class="btn btn-danger">Delete</button>
                 </form>
               </td>
@@ -123,7 +123,7 @@
                       <a href="/updateExpense/<%= e.expenseId %>" class="btn btn-secondary">Update</a>
                     </td>
                     <td>
-                      <form action="/deleteExpense/<%= e.expenseId %>" method="post" style="display:block;" onsubmit="return confirm('You want to delete the expense entry?');">
+                      <form action="/deleteExpense/<%= e.expenseId %>" method="post" onsubmit="return confirm('You want to delete the expense entry?');">
                         <button type="Submit" class="btn btn-danger">Delete</button>
                       </form>
                     </td>
