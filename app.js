@@ -177,12 +177,15 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
     const userId = req.session.user.id;
 
     // Get month from query param or default to current month (YYYY-MM)
-    const now = new Date();
-    const year = now.getFullYear();
-    const monthNum = now.getMonth() + 1;
-    const month = monthNum < 10 ? '0' + monthNum : '' + monthNum;
+    // const now = new Date();
+    // const year = now.getFullYear();
+    // const monthNum = now.getMonth() + 1;
+    // const month = monthNum < 10 ? '0' + monthNum : '' + monthNum;
 
-    const selectedMonth = `${year}-${month}`;  // e.g. "2025-07"
+    // const selectedMonth = `${year}-${month}`;  // e.g. "2025-07"
+
+    //AND DATE_FORMAT(b.month, '%Y-%m') = ?  -- This line filters by currentMonth
+    //AND DATE_FORMAT(date, '%Y-%m') = ?
 
     const sqlBudgets = `
     SELECT b.budgetId, b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
@@ -192,7 +195,6 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
       AND b.category = e.category
       AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
     WHERE b.userId = ?
-      AND DATE_FORMAT(b.month, '%Y-%m') = ?  -- This line filters by currentMonth
     GROUP BY b.budgetId, b.category, b.month
     ORDER BY b.category
   `;
@@ -200,12 +202,11 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
     const sqlExpenses = `
     SELECT * FROM expenses
     WHERE userId = ?
-    AND DATE_FORMAT(date, '%Y-%m') = ?
     ORDER BY date DESC
     LIMIT 5
   `;
 
-    pool.query(sqlBudgets, [userId, selectedMonth], (error, budgets) => {
+    pool.query(sqlBudgets, [userId], (error, budgets) => {
         if (error) {
             console.error('Database query error:', error.message);
             return res.status(500).send('Error fetching budgets');
@@ -223,7 +224,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
                 };
             });
 
-            pool.query(sqlExpenses, [userId, selectedMonth], (err, expenses) => {
+            pool.query(sqlExpenses, [userId], (err, expenses) => {
                 if (err) {
                     console.error('Database query error:', err.message);
                     return res.status(500).send('Error fetching expenses');
@@ -233,7 +234,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
                     user: req.session.user,
                     budgets: formattedBudgets,
                     expenses,
-                    selectedMonth
+                    //selectedMonth
                 });
             });
 
