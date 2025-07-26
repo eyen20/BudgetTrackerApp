@@ -366,6 +366,7 @@ app.post('/addBudget', checkAuthenticated, (req, res) => {
     });
 });
 
+// Delete Expense route
 app.post('/deleteExpense/:id', checkAuthenticated, (req,res) => {
     const expenseId=req.params.id;
     const userId=req.session.user.id;
@@ -385,6 +386,7 @@ app.post('/deleteExpense/:id', checkAuthenticated, (req,res) => {
     });
 });
 
+// Delete Budget route
 app.post('/deleteBudget/:id', checkAuthenticated, (req,res) => {
     const budgetId=req.params.id;
     const userId=req.session.user.id;
