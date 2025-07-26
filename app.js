@@ -343,25 +343,6 @@ app.post('/addExpense', checkAuthenticated, (req, res) => {
     });
 });
 
-app.post('/deleteExpense/:id', checkAuthenticated, (req,res) => {
-    const expenseId=req.params.id;
-    const userId=req.session.user.id;
-    const sql='DELETE FROM expenses WHERE expenseId =? AND userId =?';
-
-    connection.query(sql,[expenseId,userId], (error, results) => {
-        if (error) {
-            console.error('Error deleting expense: ', error);
-            return res.status(500).send('Error deleting expense');
-        }
-        if (results.affectedRows===0) {
-            req.flash('Error!', 'Expense not found');
-            return res.status(404).send('Expense not found!');
-        }
-        req.flash('Expense deleted successfully');
-        res.redirect('/dashboard');
-    });
-});
-
 // Add Budget route
 app.get('/addBudget', checkAuthenticated, (req, res) => {
     res.render('addBudget', { user: req.session.user });
@@ -381,6 +362,25 @@ app.post('/addBudget', checkAuthenticated, (req, res) => {
             return res.status(500).send('Error saving budget');
         }
         req.flash('success', 'Budget added successfully!');
+        res.redirect('/dashboard');
+    });
+});
+
+app.post('/deleteExpense/:id', checkAuthenticated, (req,res) => {
+    const expenseId=req.params.id;
+    const userId=req.session.user.id;
+    const sql='DELETE FROM expenses WHERE expenseId =? AND userId =?';
+
+    connection.query(sql,[expenseId,userId], (error, results) => {
+        if (error) {
+            console.error('Error deleting expense: ', error);
+            return res.status(500).send('Error deleting expense');
+        }
+        if (results.affectedRows===0) {
+            req.flash('Error!', 'Expense not found');
+            return res.status(404).send('Expense not found!');
+        }
+        req.flash('Expense deleted successfully');
         res.redirect('/dashboard');
     });
 });
