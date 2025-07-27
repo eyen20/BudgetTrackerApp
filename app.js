@@ -322,7 +322,7 @@ app.get("/admin/user/:id", (req, res) => {
     });
 });
 
-app.get('admin/user/:id/filter', (req,res) => {
+app.get('/admin/user/:id/filter', (req,res) => {
     const userId = req.params.id;
     const budgetCategoryFilter = req.query.budgetCategory || '';
     const budgetMonthFilter = req.query.budgetMonth || '';
@@ -334,7 +334,7 @@ app.get('admin/user/:id/filter', (req,res) => {
     } else {
         formattedMonth = ''; // If no month filter, set to empty string
     }
-    
+
     // Prepare patterns: if empty, become '%' to match all
     const patternCategory = `%${budgetCategoryFilter}%`;
     const patternMonth = `%${formattedMonth}%`;
