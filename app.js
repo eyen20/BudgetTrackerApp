@@ -335,7 +335,6 @@ app.get('admin/user/:id/filter', (req,res) => {
         formattedMonth = ''; // If no month filter, set to empty string
     }
     
-
     // Prepare patterns: if empty, become '%' to match all
     const patternCategory = `%${budgetCategoryFilter}%`;
     const patternMonth = `%${formattedMonth}%`;
