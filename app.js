@@ -335,7 +335,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
         formattedMonth = ''; // If no month filter, set to empty string
     }
 
-    let sqlBudget = `SELECT * FROM budget WHERE userId = ` + userId;
+    let sqlBudget = `SELECT * FROM budgets WHERE userId = ` + userId;
     if (categoryFilter) {
         sqlBudget += ` AND category LIKE '%${categoryFilter}%'`;
     }
