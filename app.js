@@ -219,7 +219,8 @@ app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
 app.get('/admin/search', checkAuthenticated, checkAdmin, (req, res) => {
     const searchTerm = req.query.search || '';
     const pattern = `%${searchTerm}%`;
-    const sql = `SELECT * FROM users WHERE username LIKE ? 
+    const sql = `SELECT * FROM users 
+    WHERE username LIKE ? 
     OR email LIKE ? 
     OR address LIKE ? 
     OR contact LIKE ? 
@@ -242,8 +243,6 @@ app.get('/admin/search', checkAuthenticated, checkAdmin, (req, res) => {
         });
     });
 });
-
-
 
 app.get("/admin/user/:id", (req, res) => {
     const userId = req.params.id;
@@ -319,6 +318,34 @@ app.get("/admin/user/:id", (req, res) => {
                     expenses: []
                 });
             }
+        });
+    });
+});
+
+app.get('admin/user/:id/filter', (req,res ) => {
+    const userId = req.params.id;
+    const budgetCategoryFilter = req.query.budgetCategory || '';
+    const budgetMonthFilter = req.query.budgetMonth || '';
+    const sql = `SELECT * FROM budgets WHERE `;
+    if (budgetCategoryFilter) {
+        sql += `category LIKE ?`
+    }
+    if (budgetMonthFilter) {
+        sql += ` AND month LIKE ?`
+    }
+
+    connection.query(sql, [pattern, pattern, pattern, pattern, pattern], (err, results) => {
+        if (err) {
+            console.error("Database query error:", err.message);
+            return res.status(500).send("Error Retrieving user by ID");
+        }
+        if (results.length === 0) {
+            return res.status(404).send("User not found");
+        }
+        res.render('admin', {
+            user: req.session.user, // Pass the logged-in user to the view
+            users: results, // Pass the search results to the view
+            searchTerm: searchTerm // Pass the search term to the view
         });
     });
 });

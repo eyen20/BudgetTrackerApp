@@ -30,6 +30,23 @@
         <h2>You are viewing <%= user.username %>
         </h2>
         <hr />
+        <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#budgetsTable" aria-expanded="false" aria-controls="budgetsTable">
+            Budgets Filter
+        </button>
+        <div class="collapse" id="budgetsTable">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Category</span>
+                </div>
+                <input type="text" class="form-control" aria-label="Category Filter" aria-describedby="category-addon1" id="categoryFilter" name="categoryFilter">
+            </div>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Month</span>
+                </div>
+                <input type="month" class="form-control" aria-label="Month Filter" aria-describedby="month-addon1" id="monthFilter" name="monthFilter">
+            </div>
+        </div>
 
             <!-- Budgets Table -->
         <h3><%= user.username %>'s Budgets</h3>
