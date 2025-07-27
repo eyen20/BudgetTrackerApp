@@ -352,7 +352,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
         if (results.length === 0) {
             return res.status(404).send("Budget not found");
         }
-        res.render('admin', {
+        res.render('user', {
             user: req.session.user, // Pass the logged-in user to the view
             budgets: results, // Pass the search results to the view
             categoryFilter: budgetCategoryFilter, // Pass the category filter to the view
