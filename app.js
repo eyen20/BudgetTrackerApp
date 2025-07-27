@@ -322,68 +322,68 @@ app.get("/admin/user/:id", (req, res) => {
     });
 });
 
-app.get('/admin/user/:id/filter', (req,res) => {
-    const userId = req.params.id;
-    const categoryFilter = req.query.categoryFilter || '';
-    const monthFilter = req.query.monthFilter || '';
+// app.get('/admin/user/:id/filter', (req,res) => {
+//     const userId = req.params.id;
+//     const categoryFilter = req.query.categoryFilter || '';
+//     const monthFilter = req.query.monthFilter || '';
 
-    // Make sure the month is in the format YYYY-MM-01
-    let formattedMonth = monthFilter;
-    if (formattedMonth) {
-        formattedMonth += '-01'; // Append '-01' to make it a full date
-    } else {
-        formattedMonth = ''; // If no month filter, set to empty string
-    }
+//     // Make sure the month is in the format YYYY-MM-01
+//     let formattedMonth = monthFilter;
+//     if (formattedMonth) {
+//         formattedMonth += '-01'; // Append '-01' to make it a full date
+//     } else {
+//         formattedMonth = ''; // If no month filter, set to empty string
+//     }
 
-    let sqlBudget = `SELECT * FROM budgets WHERE userId = ` + userId;
-    if (categoryFilter) {
-        sqlBudget += ` AND category LIKE '%${categoryFilter}%'`;
-    }
-    if (formattedMonth) {
-        sqlBudget += ` AND month = '${formattedMonth}'`;
-    }
-    sqlBudget += ' ORDER BY budgetId';
+//     let sqlBudget = `SELECT * FROM budgets WHERE userId = ` + userId;
+//     if (categoryFilter) {
+//         sqlBudget += ` AND category LIKE '%${categoryFilter}%'`;
+//     }
+//     if (formattedMonth) {
+//         sqlBudget += ` AND month = '${formattedMonth}'`;
+//     }
+//     sqlBudget += ' ORDER BY budgetId';
 
-    sqlExpense = `SELECT * FROM expenses WHERE userId = ` + userId;
-    if (categoryFilter) {
-        sqlExpense += ` AND category LIKE '%${categoryFilter}%'`;
-    }
-    if (monthFilter) {
-        sqlExpense += ` AND date LIKE '${monthFilter}%'`;
-    }
-    sqlExpense += ' ORDER BY expenseId';
+//     sqlExpense = `SELECT * FROM expenses WHERE userId = ` + userId;
+//     if (categoryFilter) {
+//         sqlExpense += ` AND category LIKE '%${categoryFilter}%'`;
+//     }
+//     if (monthFilter) {
+//         sqlExpense += ` AND date LIKE '${monthFilter}%'`;
+//     }
+//     sqlExpense += ' ORDER BY expenseId';
 
-    // Query budgets
-    connection.query(sqlBudget,(err, budgets) => {
-        if (err) {
-            console.error("Budget query error:", err.message);
-            return res.status(500).send("Error Retrieving Budgets");
-        }
-        if (budgets.length === 0) {
-            return res.status(404).send("Budget not found");
-        }
+//     // Query budgets
+//     connection.query(sqlBudget,(err, budgets) => {
+//         if (err) {
+//             console.error("Budget query error:", err.message);
+//             return res.status(500).send("Error Retrieving Budgets");
+//         }
+//         if (budgets.length === 0) {
+//             return res.status(404).send("Budget not found");
+//         }
 
-        // Query expenses
-        connection.query(sqlExpense, (err, expenses) => {
-            if (err) {
-                console.error("Expense query error:", err.message);
-                return res.status(500).send("Error Retrieving Expenses");
-            }
-            if (expenses.length === 0) {
-                return res.status(404).send("Expense not found");
-            }
+//         // Query expenses
+//         connection.query(sqlExpense, (err, expenses) => {
+//             if (err) {
+//                 console.error("Expense query error:", err.message);
+//                 return res.status(500).send("Error Retrieving Expenses");
+//             }
+//             if (expenses.length === 0) {
+//                 return res.status(404).send("Expense not found");
+//             }
 
-            // Render the page with both budget and expenses results
-            res.render('user', {
-                user: {id: userId }, // Pass the user ID to the view
-                budgets: budgets, // Pass the budgets to the view
-                expenses: expenses, // Pass the expenses to the view
-                categoryFilter: categoryFilter || '', // Pass the category filter to the view
-                monthFilter: monthFilter || '' // Pass the month filter to the view
-            });
-        });
-    });
-});
+//             // Render the page with both budget and expenses results
+//             res.render('user', {
+//                 user: {id: userId }, // Pass the user ID to the view
+//                 budgets: budgets, // Pass the budgets to the view
+//                 expenses: expenses, // Pass the expenses to the view
+//                 categoryFilter: categoryFilter || '', // Pass the category filter to the view
+//                 monthFilter: monthFilter || '' // Pass the month filter to the view
+//             });
+//         });
+//     });
+// });
 
 // Add Expense route
 app.get('/addExpense', checkAuthenticated, (req, res) => {
