@@ -30,7 +30,7 @@
         <h2>You are viewing <%= user.username %>
         </h2>
         <hr />
-        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterTable" aria-expanded="false" aria-controls="filterTable">
+        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filtersForm" aria-expanded="false" aria-controls="filterForm">
             Filter
         </button>
         <form method="GET" action="/admin/user/<%= user.id %>/filter" class="mb-3 collapse" id="filtersForm">
