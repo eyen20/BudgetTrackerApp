@@ -30,19 +30,18 @@
         <h2>You are viewing <%= user.username %>
         </h2>
         <hr />
-        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#budgetsTable" aria-expanded="false" aria-controls="budgetsTable">
-            Budgets Filter
+        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterTable" aria-expanded="false" aria-controls="filterTable">
+            Filter
         </button>
-        <form method="GET" action="/admin/user/<%= user.id %>/filter" class="mb-3 collapse" id="budgetsTable">
+        <form method="GET" action="/admin/user/<%= user.id %>/filter" class="mb-3 collapse" id="filtersForm">
             <div class="input-group">
                 <span class="input-group-text" id="basic-addon1">Category</span>
-                <input type="text" class="form-control" aria-label="Category Filter" aria-describedby="category-addon1" id="categoryFilter" name="categoryFilter">
+                <input type="text" class="form-control" aria-label="Category Filter" aria-describedby="category-addon1" id="categoryFilter" name="categoryFilter" value="<%= categoryFilter || '' %>">
             </div>
             <div class="input-group">
                 <span class="input-group-text" id="basic-addon1">Month</span>
-                <input type="month" class="form-control" aria-label="Month Filter" aria-describedby="month-addon1" id="monthFilter" name="monthFilter">
+                <input type="month" class="form-control" aria-label="Month Filter" aria-describedby="month-addon1" id="monthFilter" name="monthFilter" value="<%= monthFilter %>">
             </div>
-            <button class="btn btn-secondary" type="submit">Apply Filters</button>
         </form>
 
             <!-- Budgets Table -->
