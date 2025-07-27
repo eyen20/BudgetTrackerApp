@@ -356,7 +356,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
             user: req.session.user, // Pass the logged-in user to the view
             budgets: results, // Pass the search results to the view
             categoryFilter: budgetCategoryFilter, // Pass the category filter to the view
-            monthFilter: formattedMonth // Pass the month filter to the view
+            monthFilter: budgetMonthFilter // Pass the month filter to the view
         });
     });
 });

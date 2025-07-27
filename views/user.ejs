@@ -33,7 +33,7 @@
         <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#budgetsTable" aria-expanded="false" aria-controls="budgetsTable">
             Budgets Filter
         </button>
-        <div class="collapse" id="budgetsTable">
+        <form method="GET" action="/admin/user/<%= users.id %>/filter" class="mb-3 collapse" id="budgetsTable">
             <div class="input-group">
                 <span class="input-group-text" id="basic-addon1">Category</span>
                 <input type="text" class="form-control" aria-label="Category Filter" aria-describedby="category-addon1" id="categoryFilter" name="categoryFilter">
@@ -42,7 +42,8 @@
                 <span class="input-group-text" id="basic-addon1">Month</span>
                 <input type="month" class="form-control" aria-label="Month Filter" aria-describedby="month-addon1" id="monthFilter" name="monthFilter">
             </div>
-        </div>
+            <button class="btn btn-secondary" type="submit">Apply Filters</button>
+        </form>
 
             <!-- Budgets Table -->
         <h3><%= user.username %>'s Budgets</h3>
