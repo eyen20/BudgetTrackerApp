@@ -307,7 +307,7 @@ app.get("/admin/user/:id", (req, res) => {
                     res.render('user', {
                         user: user,
                         budgets: formattedBudgets,
-                        expenses
+                        expenses: expenses
                     });
                 });
 
