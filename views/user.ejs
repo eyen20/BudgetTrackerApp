@@ -54,6 +54,7 @@
         <table class="table table-bordered mt-3">
             <thead>
             <tr>
+                <th>#</th>
                 <th>Category</th>
                 <th>Month</th>
                 <th>Budgeted</th>
@@ -68,6 +69,7 @@
                 const remaining = budgeted - spent;
             %>
                 <tr>
+                <td><%= b.budgetId %></td>
                 <td><%= b.category %></td>
                 <td><%= b.formattedMonth %></td>
                 <td>$<%= budgeted.toFixed(2) %></td>
@@ -87,6 +89,7 @@
         <table class="table table-striped mt-3 table-bordered">
             <thead>
             <tr>
+                <th>#</th>
                 <th>Title</th>
                 <th>Category</th>
                 <th>Amount</th>
@@ -96,6 +99,7 @@
             <tbody>
             <% expenses.forEach(e => { %>
                 <tr>
+                <td><%= e.expenseId %></td>
                 <td><%= e.title %></td>
                 <td><%= e.category %></td>
                 <td>$<%= Number(e.amount).toFixed(2) %></td>

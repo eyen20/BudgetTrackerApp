@@ -271,7 +271,7 @@ app.get("/admin/user/:id", (req, res) => {
         AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
         WHERE b.userId = ?
         GROUP BY b.budgetId, b.category, b.month
-        ORDER BY b.category
+        ORDER BY b.budgetId,b.category
     `;
 
         const sqlExpenses = `
@@ -322,30 +322,42 @@ app.get("/admin/user/:id", (req, res) => {
     });
 });
 
-app.get('admin/user/:id/filter', (req,res ) => {
+app.get('admin/user/:id/filter', (req,res) => {
     const userId = req.params.id;
     const budgetCategoryFilter = req.query.budgetCategory || '';
     const budgetMonthFilter = req.query.budgetMonth || '';
-    const sql = `SELECT * FROM budgets WHERE `;
-    if (budgetCategoryFilter) {
-        sql += `category LIKE ?`
-    }
-    if (budgetMonthFilter) {
-        sql += ` AND month LIKE ?`
-    }
 
-    connection.query(sql, [pattern, pattern, pattern, pattern, pattern], (err, results) => {
+    // Make sure the month is in the format YYYY-MM-01
+    let formattedMonth = budgetMonthFilter;
+    if (formattedMonth) {
+        formattedMonth += '-01'; // Append '-01' to make it a full date
+    } else {
+        formattedMonth = ''; // If no month filter, set to empty string
+    }
+    
+
+    // Prepare patterns: if empty, become '%' to match all
+    const patternCategory = `%${budgetCategoryFilter}%`;
+    const patternMonth = `%${formattedMonth}%`;
+
+    const sql = `SELECT * FROM budgets WHERE userid = ? 
+    AND category LIKE ?
+    AND month LIKE ?
+    ORDER BY budgetId`;
+
+    connection.query(sql,[userId, patternCategory, patternMonth] ,(err, results) => {
         if (err) {
             console.error("Database query error:", err.message);
-            return res.status(500).send("Error Retrieving user by ID");
+            return res.status(500).send("Error Retrieving Budget");
         }
         if (results.length === 0) {
-            return res.status(404).send("User not found");
+            return res.status(404).send("Budget not found");
         }
         res.render('admin', {
             user: req.session.user, // Pass the logged-in user to the view
-            users: results, // Pass the search results to the view
-            searchTerm: searchTerm // Pass the search term to the view
+            budgets: results, // Pass the search results to the view
+            categoryFilter: budgetCategoryFilter, // Pass the category filter to the view
+            monthFilter: formattedMonth // Pass the month filter to the view
         });
     });
 });
