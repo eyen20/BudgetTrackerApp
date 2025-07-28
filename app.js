@@ -342,8 +342,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
     AND b.category = e.category
     AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
     WHERE userId = ?
-    GROUP BY b.budgetId, b.category, b.month
-    ORDER BY b.budgetId,b.category`;
+    `;
 
     if (categoryFilter) {
         sqlBudget += ` AND category LIKE '%${categoryFilter}%'`;
@@ -351,12 +350,12 @@ app.get('/admin/user/:id/filter', (req,res) => {
     if (formattedMonth) {
         sqlBudget += ` AND month = '${formattedMonth}'`;
     }
-    sqlBudget += ' ORDER BY budgetId';
+    sqlBudget += ` ORDER BY budgetId 
+    GROUP BY b.budgetId, b.category, b.month`;
 
     sqlExpense = `SELECT * 
     FROM expenses 
-    WHERE userId = ?
-    ORDER BY date DESC`;
+    WHERE userId = ?`;
     if (categoryFilter) {
         sqlExpense += ` AND category LIKE '%${categoryFilter}%'`;
     }
