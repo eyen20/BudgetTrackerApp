@@ -36,7 +36,17 @@
         <form method="GET" action="/admin/user/<%= user.id %>/filter" class="mb-3 collapse" id="filtersForm">
             <div class="input-group">
                 <span class="input-group-text" id="basic-addon1">Category</span>
-                <input type="text" class="form-control" aria-label="Category Filter" aria-describedby="category-addon1" id="categoryFilter" name="categoryFilter">
+                <select class="form-select" id="categoryFilter" name="categoryFilter" >
+                    <option value="Rent">Rent</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Food">Food</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Insurance">Insurance</option>
+                    <option value="Medical">Medical</option>
+                    <option value="Saving, Investing, & Debt Payments">Saving, Investing, & Debt Payments</option>
+                    <option value="Personal Spending & Entertainment">Personal Spending & Entertainment</option>
+                    <option value="Miscellaneous">Miscellaneous</option>
+                </select>
             </div>
             <div class="input-group">
                 <span class="input-group-text" id="basic-addon1">Month</span>
