@@ -470,11 +470,11 @@ app.post('/deleteExpense/:id', checkAuthenticated, (req,res) => {
             console.error('Error deleting expense: ', error);
             return res.status(500).send('Error deleting expense');
         }
-        if (results.affectedRows===0) {
-            req.flash('Error!', 'Expense not found');
-            return res.status(404).send('Expense not found!');
-        }
-        req.flash('Expense deleted successfully');
+        // if (results.affectedRows===0) {
+        //     req.flash('Error!', 'Expense not found');
+        //     return res.status(404).send('Expense not found!');
+        // }
+        // req.flash('Expense deleted successfully');
         res.redirect('/dashboard');
     });
 });
@@ -490,11 +490,11 @@ app.post('/deleteBudget/:id', checkAuthenticated, (req,res) => {
             console.error('Error deleting budget: ', error);
             return res.status(500).send('Error deleting budget');
         }
-        if (results.affectedRows===0) {
-            req.flash('Error!', 'Budget not found');
-            return res.status(404).send('Budget not found!');
-        }
-        req.flash('Budget deleted successfully');
+        // if (results.affectedRows===0) {
+        //     req.flash('Error!', 'Budget not found');
+        //     return res.status(404).send('Budget not found!');
+        // }
+        // req.flash('Budget deleted successfully');
         res.redirect('/dashboard');
     });
 });
@@ -508,11 +508,11 @@ app.post('/deleteUser/:id', checkAuthenticated, checkAdmin, (req,res) => {
             console.error('Error deleting user:', error);
             return res.status(500).send('Error deleting user');
         }
-        if (results.affectedRows === 0) {
-            req.flash('Error!', 'User cannot be found or deleted!');
-            return res.status(404).send('User not found');
-        }
-        req.flash('User deleted successfully');
+        // if (results.affectedRows === 0) {
+        //     req.flash('Error!', 'User cannot be found or deleted!');
+        //     return res.status(404).send('User not found');
+        // }
+        // req.flash('User deleted successfully');
         res.redirect('/admin');
     })
 })
