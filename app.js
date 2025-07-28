@@ -512,15 +512,25 @@ app.get('/admin/user/:id/filter', (req, res) => {
 
 // Add Expense route
 app.get('/addExpense', checkAuthenticated, (req, res) => {
-    res.render('addExpense', { user: req.session.user });
+    res.render('addExpense', {
+        user: req.session.user,
+        messages: req.flash('success'),
+        errors: req.flash('error')
+    });
 });
 
 app.post('/addExpense', checkAuthenticated, (req, res) => {
     const { title, category, amount, date } = req.body;
     const userId = req.session.user.id;
 
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        req.flash('error', 'Expense amount must be a positive number.');
+        return res.redirect('/addExpense');
+    }
+
     const sql = 'INSERT INTO expenses (userId, title, category, amount, date) VALUES (?, ?, ?, ?, ?)';
-    connection.query(sql, [userId, title, category, amount, date], (err, result) => {
+    connection.query(sql, [userId, title, category, parsedAmount, date], (err, result) => {
         if (err) {
             console.error('Error adding expense:', err);
             return res.status(500).send('Error adding expense');
@@ -532,7 +542,11 @@ app.post('/addExpense', checkAuthenticated, (req, res) => {
 
 // Add Budget route
 app.get('/addBudget', checkAuthenticated, (req, res) => {
-    res.render('addBudget', { user: req.session.user });
+    res.render('addBudget', {
+        user: req.session.user,
+        messages: req.flash('success'),
+        errors: req.flash('error')
+    });
 });
 
 app.post('/addBudget', checkAuthenticated, (req, res) => {
@@ -562,7 +576,7 @@ app.post('/addBudget', checkAuthenticated, (req, res) => {
 
             // 2. If not exists, insert new budget
             const insertSql = 'INSERT INTO budgets (userId, category, month, amount) VALUES (?, ?, ?, ?)';
-            connection.query(insertSql, [userId, category, formattedMonth, amount], (err, result) => {
+            connection.query(insertSql, [userId, category, formattedMonth, parsedAmount], (err, result) => {
                 if (err) {
                     console.error('Error adding budget:', err);
                     return res.status(500).send('Error saving budget');
