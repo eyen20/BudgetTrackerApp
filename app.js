@@ -326,7 +326,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
     const userId = req.params.id;
     const categoryFilter = req.query.categoryFilter || '';
     const monthFilter = req.query.monthFilter || '';
-
+    
     // Make sure the month is in the format YYYY-MM-01
     let formattedMonth = monthFilter;
     if (formattedMonth) {
@@ -335,20 +335,23 @@ app.get('/admin/user/:id/filter', (req,res) => {
         formattedMonth = ''; // If no month filter, set to empty string
     }
 
+    const patternCategory = `%${categoryFilter}%`;
+    const patternMonth = `%${monthFilter}%`;
+    const patternFormattedMonth = `${formattedMonth}%`;
+
     let sqlBudget = `SELECT b.budgetId, b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
-    FROM budgets.b
+    FROM budgets b
     LEFT JOIN expenses e
     ON b.userId = e.userId
     AND b.category = e.category
     AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
-    WHERE userId = ?
-    `;
+    WHERE userId = ?`;
 
     if (categoryFilter) {
-        sqlBudget += ` AND category LIKE '%${categoryFilter}%'`;
+        sqlBudget += ` AND category LIKE ?`;
     }
     if (formattedMonth) {
-        sqlBudget += ` AND month = '${formattedMonth}'`;
+        sqlBudget += ` AND month = ?`;
     }
     sqlBudget += ` ORDER BY budgetId 
     GROUP BY b.budgetId, b.category, b.month`;
@@ -357,15 +360,15 @@ app.get('/admin/user/:id/filter', (req,res) => {
     FROM expenses 
     WHERE userId = ?`;
     if (categoryFilter) {
-        sqlExpense += ` AND category LIKE '%${categoryFilter}%'`;
+        sqlExpense += ` AND category LIKE ?`;
     }
     if (monthFilter) {
-        sqlExpense += ` AND date LIKE '${monthFilter}%'`;
+        sqlExpense += ` AND date LIKE ?`;
     }
     sqlExpense += ' ORDER BY expenseId';
 
     // Query budgets
-    connection.query(sqlBudget,[userId],(err, budgets) => {
+    connection.query(sqlBudget,[userId, patternCategory, patternFormattedMonth],(err, budgets) => {
         if (err) {
             console.error("Budget query error:", err.message);
             return res.status(500).send("Error Retrieving Budgets");
@@ -375,7 +378,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
         }
 
         // Query expenses
-        connection.query(sqlExpense, [userId],(err, expenses) => {
+        connection.query(sqlExpense, [userId, patternCategory, patternMonth],(err, expenses) => {
             if (err) {
                 console.error("Expense query error:", err.message);
                 return res.status(500).send("Error Retrieving Expenses");
