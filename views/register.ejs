@@ -1,74 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <title>Registration</title>
-  </head>
-  <body>
-      <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="/">Budget Tracker App</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="collapsibleNavbar">
-            <ul class="navbar-nav">
-              <li class="nav-item">
-                <a class="nav-link" href="/register">Register</a>
-              </li> 
-              <li class="nav-item">
-                <a class="nav-link" href="/Login">Login</a>
-              </li> 
-            </ul>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <title>Registration</title>
+  <style>
+    body {
+      background: #fef9f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .register-box {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .register-box input {
+      padding-left: 2.5rem;
+    }
+
+    .icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      color: #aaa;
+    }
+
+    .form-group {
+      position: relative;
+    }
+
+    .btn-green {
+      background-color: #00c853;
+      border: none;
+      color: white;
+    }
+
+    .btn-green:hover {
+      background-color: #00b248;
+    }
+
+    .small-link {
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="register-box">
+    <h3 class="text-center mb-4">Create new account</h3>
+
+    <% if (errors && errors.length> 0) { %>
+      <div class="alert alert-danger">
+        <% errors.forEach(function(error) { %>
+          <p>
+            <%= error %>
+          </p>
+          <% }); %>
+      </div>
+      <% } %>
+        <% if (messages && messages.length> 0) { %>
+          <div class="alert alert-success">
+            <% messages.forEach(function(message) { %>
+              <p>
+                <%= message %>
+              </p>
+              <% }); %>
           </div>
-        </div>
-      </nav>
-    <div class="container">
-        <h1 class="mt-5">Register</h1>
-        <% if (messages && messages.length > 0) { %>
-            <div class="alert alert-danger">
-                <% messages.forEach(function(message) { %>
-                    <p><%= message %></p>
-                <% }); %>
-            </div>
-        <% } %>
-        <form action="/register" method="POST" class="mt-4">
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" class="form-control" required 
-                <% if (formData && formData.username) { %> value="<%= formData.username %>" <% } else { %> value="" <% } %>>
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" class="form-control" required 
-                <% if (formData && formData.email) { %> value="<%= formData.email %>" <% } else { %> value="" <% } %>>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="address">Address:</label>
-                <input type="text" id="address" name="address" class="form-control" required 
-                <% if (formData && formData.address) { %> value="<%= formData.address %>" <% } else { %> value="" <% } %>>
-            </div>
-            <div class="form-group">
-                <label for="contact">Contact Number:</label>
-                <input type="text" id="contact" name="contact" class="form-control" required 
-                <% if (formData && formData.contact) { %> value="<%= formData.contact %>" <% } else { %> value="" <% } %>>
-            </div>
-            <div class="form-group">
-                <label for="role">Role:</label>
+          <% } %>
+            <form action="/register" method="POST">
+              <div class="form-group mb-3">
+                <span class="icon">&#128100;</span> <!-- person icon -->
+                <input type="text" id="username" name="username" class="form-control" placeholder="e.g elon tesla" required
+                  <% if (formData && formData.username) { %> value="<%= formData.username %>" <% } else { %> value="" <%
+                      } %>>
+              </div>
+              <div class="form-group mb-3">
+                <span class="icon">&#9993;</span> <!-- envelope icon -->
+                <input type="email" id="email" name="email" class="form-control" placeholder="e.g elon@testla.com" required
+                  <% if (formData && formData.email) { %> value="<%= formData.email %>" <% } else { %> value="" <% } %>>
+              </div>
+              <div class="form-group mb-4">
+                <span class="icon">&#128274;</span> <!-- lock icon -->
+                <input type="password" id="password" name="password" class="form-control" placeholder="e.g ilovebudget123"
+                  required>
+              </div>
+              <div class="form-group mb-4">
+                <span class="icon">&#128274;</span> <!-- house icon -->
+                <input type="text" id="address" name="address" class="form-control" placeholder="e.g 123 Main St" required
+                  <% if (formData && formData.address) { %> value="<%= formData.address %>" <% } else { %> value="" <% }
+                      %>>
+              </div>
+              <div class="form-group mb-4">
+                <span class="icon">&#128222;</span> <!-- phone icon -->
+                <input type="text" id="contact" name="contact" class="form-control" placeholder="e.g 23456789" required <%
+                  if (formData && formData.contact) { %> value="<%= formData.contact %>" <% } else { %> value="" <% } %>
+                      >
+              </div>
+              <div class="form-group mb-4">
                 <select id="role" name="role" class="form-control" required>
-                    <option value="user" <% if (formData && formData.role === 'user') { %> selected <% } %>>User</option>
-                    <option value="admin" <% if (formData && formData.role === 'admin') { %> selected <% } %>>Admin</option>
+                  <option value="user" <% if (formData && formData.role==='user' ) { %> selected <% } %>>User</option>
+                  <option value="admin" <% if (formData && formData.role==='admin' ) { %> selected <% } %>>Admin
+                  </option>
                 </select>
-            </div>
-            <div class="mt-3">
-              <button type="submit" class="btn btn-primary">Register</button>
-            </div>
-        </form>
-    </div>
+              </div>
+              <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-green btn-lg rounded-pill">Register</button>
+              </div>
+              <div class="text-center small-link">
+                <a href="/login">Already have an account?</a>
+              </div>
+            </form>
+  </div>
 </body>
+
 </html>
