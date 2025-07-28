@@ -150,14 +150,14 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
     const userId = req.session.user.id;
 
     const sqlBudgets = `
-    SELECT b.budgetId, b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
+    SELECT b.budgetId, b.category, b.month, b.amount AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
     FROM budgets b
     LEFT JOIN expenses e
       ON b.userId = e.userId
       AND b.category = e.category
       AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
     WHERE b.userId = ?
-    GROUP BY b.budgetId, b.category, b.month
+    GROUP BY b.budgetId, b.category, b.month, b.amount
     ORDER BY b.month DESC, b.category
   `;
 
@@ -207,7 +207,7 @@ app.get('/dashboard/filter', (req,res) => {
     const monthFilter = req.query.monthFilter || ''; // Get month filter from query string, default to empty
 
     // SQL query to retrieve budget data joined with expenses
-    let sqlBudget = `SELECT b.budgetId, b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
+    let sqlBudget = `SELECT b.budgetId, b.category, b.month, b.amount AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
     FROM budgets b
     LEFT JOIN expenses e
     ON b.userId = e.userId
@@ -224,7 +224,7 @@ app.get('/dashboard/filter', (req,res) => {
         sqlBudget += ` AND DATE_FORMAT(month, '%Y-%m') = ?`;
         sqlBudgetParams.push(monthFilter);
     }
-    sqlBudget += ` GROUP BY b.budgetId, b.category, b.month ORDER BY b.budgetId `;
+    sqlBudget += ` GROUP BY b.budgetId, b.category, b.month, b.amount ORDER BY b.budgetId `;
 
     // SQL query to retrieve user's expenses
     let sqlExpense = `SELECT * FROM expenses WHERE userId = ?`;
@@ -347,14 +347,14 @@ app.get("/admin/user/:id", (req, res) => {
         const month = monthNum < 10 ? '0' + monthNum : '' + monthNum;
 
         const sqlBudgets = `
-        SELECT b.budgetId, b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
+        SELECT b.budgetId, b.category, b.month, b.amount AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
         FROM budgets b
         LEFT JOIN expenses e
         ON b.userId = e.userId
         AND b.category = e.category
         AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
         WHERE b.userId = ?
-        GROUP BY b.budgetId, b.category, b.month
+        GROUP BY b.budgetId, b.category, b.month, b.amount
         ORDER BY b.budgetId,b.category
     `;
 
@@ -423,7 +423,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
 
         const user = userResults[0];
 
-        let sqlBudget = `SELECT b.budgetId, b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
+        let sqlBudget = `SELECT b.budgetId, b.category, b.month, b.amount AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
         FROM budgets b
         LEFT JOIN expenses e
         ON b.userId = e.userId
@@ -440,7 +440,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
             sqlBudget += ` AND DATE_FORMAT(month, '%Y-%m') = ?`;
             sqlBudgetParams.push(monthFilter);
         }
-        sqlBudget += ` GROUP BY b.budgetId, b.category, b.month ORDER BY b.budgetId `;
+        sqlBudget += ` GROUP BY b.budgetId, b.category, b.month, b.amount ORDER BY b.budgetId `;
 
         let sqlExpense = `SELECT * FROM expenses WHERE userId = ?`;
 
