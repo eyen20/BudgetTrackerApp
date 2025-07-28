@@ -8,16 +8,17 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <title>Add Expense</title>
   <style>
-      body {
+    body {
       background: #fef9f5;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
-      }
-      h2 {
-      font-weight: bold;;
-      }
+    }
+
+    h2 {
+      font-weight: bold;
+    }
   </style>
 </head>
 
@@ -41,8 +42,25 @@
   <!-- Main Content -->
   <div class="container mt-4">
     <h2 class="text-center mb-4">Add New Expense</h2>
-    <form action="/addExpense" method="POST">
 
+    <!-- Flash Messages -->
+    <% if (messages && messages.length > 0) { %>
+      <div class="alert alert-success">
+        <% messages.forEach(function(message) { %>
+          <p><%= message %></p>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% if (errors && errors.length > 0) { %>
+      <div class="alert alert-danger">
+        <% errors.forEach(function(error) { %>
+          <p><%= error %></p>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <form action="/addExpense" method="POST">
       <div class="mb-3">
         <label for="title" class="form-label">Expense Title</label>
         <input type="text" class="form-control" id="title" name="title" required>
@@ -76,7 +94,6 @@
       <div class="d-grid">
         <button type="submit" class="btn btn-primary rounded-pill">Add Expense</button>
       </div>
-
     </form>
   </div>
 </body>
