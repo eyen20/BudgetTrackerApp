@@ -525,34 +525,34 @@ app.get('/addBudget', checkAuthenticated, (req, res) => {
     res.render('addBudget', { user: req.session.user });
 });
 
-app.post('/addBudget', checkAuthenticated, async (req, res) => {
+aapp.post('/addBudget', checkAuthenticated, (req, res) => {
     const userId = req.session.user.id;
     const { category, month, amount } = req.body;
     const formattedMonth = month + '-01';
 
-    try {
-        // Check for existing budget
-        const [existing] = await db.promise().query(
-            "SELECT * FROM budgets WHERE category = ? AND month = ? AND userId = ?",
-            [category, formattedMonth, userId]
-        );
+    const checkSql = "SELECT * FROM budgets WHERE category = ? AND month = ? AND userId = ?";
+    connection.query(checkSql, [category, formattedMonth, userId], (err, results) => {
+        if (err) {
+            console.error("Error checking existing budget:", err);
+            return res.status(500).send("Error checking budget");
+        }
 
-        if (existing.length > 0) {
+        if (results.length > 0) {
             req.flash("error", "Budget for this category and month already exists.");
             return res.redirect("/dashboard");
         }
 
-        // Insert new budget
-        const sql = 'INSERT INTO budgets (userId, category, month, amount) VALUES (?, ?, ?, ?)';
-        await db.promise().query(sql, [userId, category, formattedMonth, amount]);
+        const insertSql = 'INSERT INTO budgets (userId, category, month, amount) VALUES (?, ?, ?, ?)';
+        connection.query(insertSql, [userId, category, formattedMonth, amount], (err, result) => {
+            if (err) {
+                console.error('Error adding budget:', err);
+                return res.status(500).send('Error saving budget');
+            }
 
-        req.flash('success', 'Budget added successfully!');
-        res.redirect('/dashboard');
-
-    } catch (err) {
-        console.error('Error adding budget:', err);
-        res.status(500).send('Error saving budget');
-    }
+            req.flash('success', 'Budget added successfully!');
+            res.redirect('/dashboard');
+        });
+    });
 });
 
 // Delete Expense route
