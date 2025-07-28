@@ -341,7 +341,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
         sqlBudgetParams.push(`%${categoryFilter}%`);
     }
     if (monthFilter) {
-        sqlBudget += ` AND DATE_FORMAT(b.month, '%Y-%m') = ?`;
+        sqlBudget += ` AND DATE_FORMAT(month, '%Y-%m') = ?`;
         sqlBudgetParams.push(monthFilter);
     }
     sqlBudget += ` GROUP BY b.budgetId, b.category, b.month ORDER BY b.budgetId `;
@@ -381,7 +381,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
 
             // Render the page with both budget and expenses results
             res.render('user', {
-                user: {id: userId }, // Pass the user ID to the view
+                user: userId, // Pass the user ID to the view
                 budgets: budgets, // Pass the budgets to the view
                 expenses: expenses, // Pass the expenses to the view
                 categoryFilter: categoryFilter || '', // Pass the category filter to the view
