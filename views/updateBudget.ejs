@@ -38,7 +38,20 @@
       <form action="/updateBudget/<%= budget.budgetId %>" method="POST" class="mx-auto" style="max-width: 500px;">
         <div class="mb-3">
           <label for="category" class="form-label">Category:</label>
-          <input type="text" class="form-control" id="category" name="category" value="<%= budget.category %>" required>
+          <select class="form-control" id="category" name="category" required>
+            <option value="Rent" <%=budget.category==="Rent" ? "selected" : "" %>>Rent</option>
+            <option value="Transport" <%=budget.category==="Transport" ? "selected" : "" %>>Transport</option>
+            <option value="Food" <%=budget.category==="Food" ? "selected" : "" %>>Food</option>
+            <option value="Utilities" <%=budget.category==="Utilities" ? "selected" : "" %>>Utilities</option>
+            <option value="Insurance" <%=budget.category==="Insurance" ? "selected" : "" %>>Insurance</option>
+            <option value="Medical" <%=budget.category==="Medical" ? "selected" : "" %>>Medical</option>
+            <option value="Saving, Investing, & Debt Payments" <%=budget.category==="Saving, Investing, & Debt Payments"
+              ? "selected" : "" %>>Saving, Investing, & Debt Payments</option>
+            <option value="Personal Spending & Entertainment" <%=budget.category==="Personal Spending & Entertainment"
+              ? "selected" : "" %>>Personal Spending & Entertainment</option>
+            <option value="Miscellaneous" <%=budget.category==="Miscellaneous" ? "selected" : "" %>>Miscellaneous
+            </option>
+          </select>
         </div>
 
         <div class="mb-3">
