@@ -379,6 +379,18 @@ app.get('/admin/user/:id/filter', (req,res) => {
             }
             if (budgets.length === 0) {
                 budgets = []; // If no budgets found, set to empty array
+            } else {
+                // Format the month for each budget
+                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                budgets = budgets.map(b => {
+                    const date = new Date(b.month);
+                    const monthName = months[date.getMonth()];
+                    const year = date.getFullYear();
+                    return {
+                        ...b,
+                        formattedMonth: monthName + ' ' + year
+                    };
+                });
             }
 
             // Query expenses
