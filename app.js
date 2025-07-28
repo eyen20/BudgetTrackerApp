@@ -327,65 +327,78 @@ app.get('/admin/user/:id/filter', (req,res) => {
     const categoryFilter = req.query.categoryFilter || '';
     const monthFilter = req.query.monthFilter || '';
 
-    let sqlBudget = `SELECT b.budgetId, b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
-    FROM budgets b
-    LEFT JOIN expenses e
-    ON b.userId = e.userId
-    AND b.category = e.category
-    AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
-    WHERE b.userId = ?`;
-
-    const sqlBudgetParams = [userId];
-    if (categoryFilter) {
-        sqlBudget += ` AND b.category LIKE ?`;
-        sqlBudgetParams.push(`%${categoryFilter}%`);
-    }
-    if (monthFilter) {
-        sqlBudget += ` AND DATE_FORMAT(month, '%Y-%m') = ?`;
-        sqlBudgetParams.push(monthFilter);
-    }
-    sqlBudget += ` GROUP BY b.budgetId, b.category, b.month ORDER BY b.budgetId `;
-
-    let sqlExpense = `SELECT * FROM expenses WHERE userId = ?`;
-
-    const sqlExpenseParams = [userId];
-    if (categoryFilter) {
-        sqlExpense += ` AND category LIKE ?`;
-        sqlExpenseParams.push(`%${categoryFilter}%`);
-    }
-    if (monthFilter) {
-        sqlExpense += ` AND date LIKE ?`;
-        sqlExpenseParams.push(`%${monthFilter}%`);
-    }
-    sqlExpense += ' ORDER BY expenseId';
-
-    // Query budgets
-    connection.query(sqlBudget, sqlBudgetParams,(err, budgets) => {
+    // Get the user info
+    connection.query('SELECT * FROM users WHERE id = ?', [userId], (err, userResults) => {
         if (err) {
-            console.error("Budget query error:", err.message);
-            return res.status(500).send("Error Retrieving Budgets");
+            console.error('Error fetching user:', err.message);
+            return res.status(500).send('Error retrieving user');
         }
-        if (budgets.length === 0) {
-            budgets = []; // If no budgets found, set to empty array
+        if (userResults.length === 0) {
+            return res.status(404).send('User not found');
         }
 
-        // Query expenses
-        connection.query(sqlExpense, sqlExpenseParams,(err, expenses) => {
+        const user = userResults[0];
+
+        let sqlBudget = `SELECT b.budgetId, b.category, b.month, SUM(b.amount) AS budgeted, IFNULL(SUM(e.amount), 0) AS spent
+        FROM budgets b
+        LEFT JOIN expenses e
+        ON b.userId = e.userId
+        AND b.category = e.category
+        AND DATE_FORMAT(b.month, '%Y-%m') = DATE_FORMAT(e.date, '%Y-%m')
+        WHERE b.userId = ?`;
+
+        const sqlBudgetParams = [userId];
+        if (categoryFilter) {
+            sqlBudget += ` AND b.category LIKE ?`;
+            sqlBudgetParams.push(`%${categoryFilter}%`);
+        }
+        if (monthFilter) {
+            sqlBudget += ` AND DATE_FORMAT(month, '%Y-%m') = ?`;
+            sqlBudgetParams.push(monthFilter);
+        }
+        sqlBudget += ` GROUP BY b.budgetId, b.category, b.month ORDER BY b.budgetId `;
+
+        let sqlExpense = `SELECT * FROM expenses WHERE userId = ?`;
+
+        const sqlExpenseParams = [userId];
+        if (categoryFilter) {
+            sqlExpense += ` AND category LIKE ?`;
+            sqlExpenseParams.push(`%${categoryFilter}%`);
+        }
+        if (monthFilter) {
+            sqlExpense += ` AND date LIKE ?`;
+            sqlExpenseParams.push(`%${monthFilter}%`);
+        }
+        sqlExpense += ' ORDER BY expenseId';
+
+        // Query budgets
+        connection.query(sqlBudget, sqlBudgetParams,(err, budgets) => {
             if (err) {
-                console.error("Expense query error:", err.message);
-                return res.status(500).send("Error Retrieving Expenses");
+                console.error("Budget query error:", err.message);
+                return res.status(500).send("Error Retrieving Budgets");
             }
-            if (expenses.length === 0) {
-                expenses = []; // If no expenses found, set to empty array
+            if (budgets.length === 0) {
+                budgets = []; // If no budgets found, set to empty array
             }
 
-            // Render the page with both budget and expenses results
-            res.render('user', {
-                user: userId, // Pass the user ID to the view
-                budgets: budgets, // Pass the budgets to the view
-                expenses: expenses, // Pass the expenses to the view
-                categoryFilter: categoryFilter || '', // Pass the category filter to the view
-                monthFilter: monthFilter || '' // Pass the month filter to the view
+            // Query expenses
+            connection.query(sqlExpense, sqlExpenseParams,(err, expenses) => {
+                if (err) {
+                    console.error("Expense query error:", err.message);
+                    return res.status(500).send("Error Retrieving Expenses");
+                }
+                if (expenses.length === 0) {
+                    expenses = []; // If no expenses found, set to empty array
+                }
+
+                // Render the page with both budget and expenses results
+                res.render('user', {
+                    user: user, // Pass the user ID to the view
+                    budgets: budgets, // Pass the budgets to the view
+                    expenses: expenses, // Pass the expenses to the view
+                    categoryFilter: categoryFilter || '', // Pass the category filter to the view
+                    monthFilter: monthFilter || '' // Pass the month filter to the view
+                });
             });
         });
     });
