@@ -82,7 +82,7 @@
         </thead>
         <tbody>
           <% budgets.forEach(b=> {
-            const budgeted = Number(b.budgeted);
+            const budgeted = Number(b.amount);
             const spent = Number(b.spent);
             const remaining = budgeted - spent;
             %>
