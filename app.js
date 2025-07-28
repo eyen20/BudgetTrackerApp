@@ -480,6 +480,24 @@ app.post('/deleteBudget/:id', checkAuthenticated, (req,res) => {
     });
 });
 
+//Delete users route
+app.post('/deleteUser/:id', checkAuthenticated, checkAdmin, (req,res) => {
+    const userId=req.params.id;
+    const sql='DELETE FROM users WHERE id = ?';
+    connection.query(sql,[userId], (error, results) => {
+        if (error) {
+            console.error('Error deleting user:', error);
+            return res.status(500).send('Error deleting user');
+        }
+        if (results.affectedRows === 0) {
+            req.flash('Error!', 'User cannot be found or deleted!');
+            return res.status(404).send('User not found');
+        }
+        req.flash('User deleted successfully');
+        res.redirect('/admin');
+    })
+})
+
 // Update Budget route
 app.get('/updateBudget/:id', (req, res) => {
     const budgetId = req.params.id;

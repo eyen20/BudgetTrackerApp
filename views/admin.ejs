@@ -52,6 +52,7 @@
             <th width="50">Address</th>
             <th width="50">Contact</th>
             <th width="50">Role</th>
+            <th width="50">Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -74,6 +75,11 @@
               </td>
               <td>
                 <%= users[i].role %>
+              </td>
+              <td>
+                <form action="/deleteUser/<%= users[i].id %>" method="post" onsubmit="return confirm('You want to delete the user?');">
+                  <button type="Submit" class="btn btn-danger">Delete</button>
+                </form>
               </td>
             </tr>
             <% } %>
