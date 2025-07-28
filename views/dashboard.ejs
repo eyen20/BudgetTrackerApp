@@ -15,35 +15,16 @@
       height: 100vh;
       margin: 0;
     }
-    .login-box {
-      background: white;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      max-width: 420px;
-      width: 100%;
+    h2 {
+      font-weight: bold;;
     }
-    .login-box input {
-      padding-left: 2.5rem;
-    }
-    .icon {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1rem;
-      color: #aaa;
-    }
-    .form-group {
-      position: relative;
-    }
-    .btn-green {
-      background-color: #00c853;
+    .btn-action {
+      background-color: #aa40df;
       border: none;
       color: white;
     }
-    .btn-green:hover {
-      background-color: #00b248;
+    .btn-action:hover {
+      background-color: #aa40df;
     }
   </style>
 </head>
@@ -138,7 +119,7 @@
               </td>
               <td>
                 <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="budgetDropdownMenu<%= b.budgetId %>" data-bs-toggle="dropdown" aria-expanded="false">
+                  <button class="btn btn-action dropdown-toggle" type="button" id="budgetDropdownMenu<%= b.budgetId %>" data-bs-toggle="dropdown" aria-expanded="false">
                     Actions
                   </button>
                   <ul class="dropdown-menu" aria-labelledby="budgetDropdownMenu<%= b.budgetId %>">
@@ -192,7 +173,7 @@
                     </td>
                     <td>
                       <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-action dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                           Actions
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
