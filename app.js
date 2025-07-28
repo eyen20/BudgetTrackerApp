@@ -201,7 +201,7 @@ app.get('/dashboard', checkAuthenticated, (req, res) => {
 });
 
 // Dashboard filter route
-app.get('/dashboard/filter', (req,res) => {
+app.get('/dashboard/filter', (req, res) => {
     const userId = req.session.user.id; // Get logged-in user's ID from session
     const categoryFilter = req.query.categoryFilter || ''; // Get category filter from query string, default to empty
     const monthFilter = req.query.monthFilter || ''; // Get month filter from query string, default to empty
@@ -241,7 +241,7 @@ app.get('/dashboard/filter', (req,res) => {
     sqlExpense += ` ORDER BY expenseId`;
 
     // Query budgets
-    connection.query(sqlBudget, sqlBudgetParams,(err, budgets) => {
+    connection.query(sqlBudget, sqlBudgetParams, (err, budgets) => {
         if (err) {
             console.error("Budget query error:", err.message);
             return res.status(500).send("Error Retrieving Budgets");
@@ -263,7 +263,7 @@ app.get('/dashboard/filter', (req,res) => {
         }
 
         // Query expenses
-        connection.query(sqlExpense, sqlExpenseParams,(err, expenses) => {
+        connection.query(sqlExpense, sqlExpenseParams, (err, expenses) => {
             if (err) {
                 console.error("Expense query error:", err.message);
                 return res.status(500).send("Error Retrieving Expenses");
@@ -406,7 +406,7 @@ app.get("/admin/user/:id", (req, res) => {
     });
 });
 
-app.get('/admin/user/:id/filter', (req,res) => {
+app.get('/admin/user/:id/filter', (req, res) => {
     const userId = req.params.id;
     const categoryFilter = req.query.categoryFilter || '';
     const monthFilter = req.query.monthFilter || '';
@@ -456,7 +456,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
         sqlExpense += ' ORDER BY expenseId';
 
         // Query budgets
-        connection.query(sqlBudget, sqlBudgetParams,(err, budgets) => {
+        connection.query(sqlBudget, sqlBudgetParams, (err, budgets) => {
             if (err) {
                 console.error("Budget query error:", err.message);
                 return res.status(500).send("Error Retrieving Budgets");
@@ -478,7 +478,7 @@ app.get('/admin/user/:id/filter', (req,res) => {
             }
 
             // Query expenses
-            connection.query(sqlExpense, sqlExpenseParams,(err, expenses) => {
+            connection.query(sqlExpense, sqlExpenseParams, (err, expenses) => {
                 if (err) {
                     console.error("Expense query error:", err.message);
                     return res.status(500).send("Error Retrieving Expenses");
@@ -525,31 +525,43 @@ app.get('/addBudget', checkAuthenticated, (req, res) => {
     res.render('addBudget', { user: req.session.user });
 });
 
-app.post('/addBudget', checkAuthenticated, (req, res) => {
+app.post('/addBudget', checkAuthenticated, async (req, res) => {
     const userId = req.session.user.id;
     const { category, month, amount } = req.body;
-
-    // Make month into a full date (e.g. 2025-07 → 2025-07-01)
     const formattedMonth = month + '-01';
 
-    const sql = 'INSERT INTO budgets (userId, category, month, amount) VALUES (?, ?, ?, ?)';
-    connection.query(sql, [userId, category, formattedMonth, amount], (err, result) => {
-        if (err) {
-            console.error('Error adding budget:', err);
-            return res.status(500).send('Error saving budget');
+    try {
+        // Check for existing budget
+        const [existing] = await db.promise().query(
+            "SELECT * FROM budgets WHERE category = ? AND month = ? AND userId = ?",
+            [category, formattedMonth, userId]
+        );
+
+        if (existing.length > 0) {
+            req.flash("error", "Budget for this category and month already exists.");
+            return res.redirect("/dashboard");
         }
+
+        // Insert new budget
+        const sql = 'INSERT INTO budgets (userId, category, month, amount) VALUES (?, ?, ?, ?)';
+        await db.promise().query(sql, [userId, category, formattedMonth, amount]);
+
         req.flash('success', 'Budget added successfully!');
         res.redirect('/dashboard');
-    });
+
+    } catch (err) {
+        console.error('Error adding budget:', err);
+        res.status(500).send('Error saving budget');
+    }
 });
 
 // Delete Expense route
-app.post('/deleteExpense/:id', checkAuthenticated, (req,res) => {
-    const expenseId=req.params.id;
-    const userId=req.session.user.id;
-    const sql='DELETE FROM expenses WHERE expenseId =? AND userId =?';
+app.post('/deleteExpense/:id', checkAuthenticated, (req, res) => {
+    const expenseId = req.params.id;
+    const userId = req.session.user.id;
+    const sql = 'DELETE FROM expenses WHERE expenseId =? AND userId =?';
 
-    connection.query(sql,[expenseId,userId], (error, results) => {
+    connection.query(sql, [expenseId, userId], (error, results) => {
         if (error) {
             console.error('Error deleting expense: ', error);
             return res.status(500).send('Error deleting expense');
@@ -564,12 +576,12 @@ app.post('/deleteExpense/:id', checkAuthenticated, (req,res) => {
 });
 
 // Delete Budget route
-app.post('/deleteBudget/:id', checkAuthenticated, (req,res) => {
-    const budgetId=req.params.id;
-    const userId=req.session.user.id;
-    const sql='DELETE FROM budgets WHERE budgetId =? AND userId =?';
+app.post('/deleteBudget/:id', checkAuthenticated, (req, res) => {
+    const budgetId = req.params.id;
+    const userId = req.session.user.id;
+    const sql = 'DELETE FROM budgets WHERE budgetId =? AND userId =?';
 
-    connection.query(sql,[budgetId,userId], (error, results) => {
+    connection.query(sql, [budgetId, userId], (error, results) => {
         if (error) {
             console.error('Error deleting budget: ', error);
             return res.status(500).send('Error deleting budget');
@@ -584,10 +596,10 @@ app.post('/deleteBudget/:id', checkAuthenticated, (req,res) => {
 });
 
 //Delete users route
-app.post('/deleteUser/:id', checkAuthenticated, checkAdmin, (req,res) => {
-    const userId=req.params.id;
-    const sql='DELETE FROM users WHERE id = ?';
-    connection.query(sql,[userId], (error, results) => {
+app.post('/deleteUser/:id', checkAuthenticated, checkAdmin, (req, res) => {
+    const userId = req.params.id;
+    const sql = 'DELETE FROM users WHERE id = ?';
+    connection.query(sql, [userId], (error, results) => {
         if (error) {
             console.error('Error deleting user:', error);
             return res.status(500).send('Error deleting user');
