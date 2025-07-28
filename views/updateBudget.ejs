@@ -62,7 +62,7 @@
 
         <div class="mb-3">
           <label for="amount" class="form-label">Amount ($):</label>
-          <input type="number" class="form-control" id="amount" name="amount" value="<%= budget.amount %>" required>
+          <input type="number" class="form-control" id="amount" name="amount" value="<%= budget.amount %>" min="0" required>
         </div>
 
         <div class="d-grid">
