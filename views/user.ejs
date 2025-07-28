@@ -52,8 +52,9 @@
                 <span class="input-group-text" id="basic-addon1">Month</span>
                 <input type="month" class="form-control" aria-label="Month Filter" aria-describedby="month-addon1" id="monthFilter" name="monthFilter">
             </div>
-            <button type="submit" class="btn btn-secondary">Apply Filters</button>
+            <button type="submit" class="btn btn-success">Apply Filters</button>
         </form>
+        <a href="/admin/user/<%= user.id %>" class="btn btn-danger" role="button" aria-pressed="true">Clear Filter</a>
 
             <!-- Budgets Table -->
         <h3><%= user.username %>'s Budgets</h3>
