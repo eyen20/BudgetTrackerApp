@@ -337,14 +337,14 @@ app.get('/admin/user/:id/filter', (req,res) => {
 
     const sqlBudgetParams = [userId];
     if (categoryFilter) {
-        sqlBudget += ` AND category LIKE ?`;
+        sqlBudget += ` AND b.category LIKE ?`;
         sqlBudgetParams.push(`%${categoryFilter}%`);
     }
     if (monthFilter) {
-        sqlBudget += ` AND DATE_FORMAT(month, '%Y-%m') = ?`;
+        sqlBudget += ` AND DATE_FORMAT(b.month, '%Y-%m') = ?`;
         sqlBudgetParams.push(monthFilter);
     }
-    sqlBudget += ` GROUP BY b.budgetId, b.category, b.month ORDER BY budgetId `;
+    sqlBudget += ` GROUP BY b.budgetId, b.category, b.month ORDER BY b.budgetId `;
 
     let sqlExpense = `SELECT * FROM expenses WHERE userId = ?`;
 
