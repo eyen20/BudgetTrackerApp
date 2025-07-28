@@ -353,8 +353,8 @@ app.get('/admin/user/:id/filter', (req,res) => {
     if (formattedMonth) {
         sqlBudget += ` AND month = ?`;
     }
-    sqlBudget += ` ORDER BY budgetId 
-    GROUP BY b.budgetId, b.category, b.month`;
+    sqlBudget += ` GROUP BY b.budgetId, b.category, b.month
+    ORDER BY budgetId `;
 
     sqlExpense = `SELECT * 
     FROM expenses 
