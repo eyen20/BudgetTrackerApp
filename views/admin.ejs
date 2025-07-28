@@ -76,6 +76,11 @@
               <td>
                 <%= users[i].role %>
               </td>
+              <td>
+                <form action="/deleteUser/<%= i.expenseId %>" method="post" onsubmit="return confirm('You want to delete the user?');">
+                  <button type="Submit" class="btn btn-danger">Delete</button>
+                </form>
+              </td>
             </tr>
             <% } %>
         </tbody>
