@@ -36,6 +36,7 @@
       transform: translateY(-50%);
       font-size: 1rem;
       color: #aaa;
+      pointer-events: none;
     }
 
     .form-group {
@@ -82,34 +83,40 @@
           <% } %>
             <form action="/register" method="POST">
               <div class="form-group mb-3">
+                <label for="username" class="form-label">Username</label>
                 <span class="icon">&#128100;</span> <!-- person icon -->
                 <input type="text" id="username" name="username" class="form-control" placeholder="e.g elon tesla" required
                   <% if (formData && formData.username) { %> value="<%= formData.username %>" <% } else { %> value="" <%
                       } %>>
               </div>
               <div class="form-group mb-3">
+                <label for="email" class="form-label">Email</label>
                 <span class="icon">&#9993;</span> <!-- envelope icon -->
                 <input type="email" id="email" name="email" class="form-control" placeholder="e.g elon@testla.com" required
                   <% if (formData && formData.email) { %> value="<%= formData.email %>" <% } else { %> value="" <% } %>>
               </div>
               <div class="form-group mb-4">
+                <label for="password" class="form-label">Password</label>
                 <span class="icon">&#128274;</span> <!-- lock icon -->
                 <input type="password" id="password" name="password" class="form-control" placeholder="e.g ilovebudget123"
                   required>
               </div>
               <div class="form-group mb-4">
-                <span class="icon">&#128274;</span> <!-- house icon -->
+                <label for="address" class="form-label">Address</label>
+                <span class="icon">&#127968;</span> <!-- house icon -->
                 <input type="text" id="address" name="address" class="form-control" placeholder="e.g 123 Main St" required
                   <% if (formData && formData.address) { %> value="<%= formData.address %>" <% } else { %> value="" <% }
                       %>>
               </div>
               <div class="form-group mb-4">
+                <label for="contact" class="form-label">Contact Number</label>
                 <span class="icon">&#128222;</span> <!-- phone icon -->
                 <input type="text" id="contact" name="contact" class="form-control" placeholder="e.g 23456789" required <%
                   if (formData && formData.contact) { %> value="<%= formData.contact %>" <% } else { %> value="" <% } %>
                       >
               </div>
               <div class="form-group mb-4">
+                <span class="icon">&#128101;</span> <!-- multi-role icon -->
                 <select id="role" name="role" class="form-control" required>
                   <option value="user" <% if (formData && formData.role==='user' ) { %> selected <% } %>>User</option>
                   <option value="admin" <% if (formData && formData.role==='admin' ) { %> selected <% } %>>Admin
