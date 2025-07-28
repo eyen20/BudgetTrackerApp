@@ -288,7 +288,9 @@ app.get('/dashboard/filter', (req, res) => {
                 budgets: budgets, // Pass the budgets to the view
                 expenses: expenses, // Pass the expenses to the view
                 categoryFilter: categoryFilter || '', // Pass the category filter to the view
-                monthFilter: monthFilter || '' // Pass the month filter to the view
+                monthFilter: monthFilter || '', // Pass the month filter to the view
+                errors: req.flash('error'), // Pass any errors to the view
+                messages: req.flash('success') // Pass any success messages to the view
             });
         });
     });

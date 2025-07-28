@@ -26,18 +26,27 @@
       width: 100%;
     }
 
-    .register-box input {
+    .register-box input,
+    .register-box select {
       padding-left: 2.5rem;
     }
 
     .icon {
       position: absolute;
-      left: 10px;
+      left: 12px;
+      top: 70%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      color: #aaa;
+    }
+
+    .icon-select {
+      position: absolute;
+      left: 12px;
       top: 50%;
       transform: translateY(-50%);
       font-size: 1rem;
       color: #aaa;
-      pointer-events: none;
     }
 
     .form-group {
@@ -117,7 +126,7 @@
                       >
               </div>
               <div class="form-group mb-4">
-                <span class="icon"><i class="fas fa-users"></i></span> <!-- multi-role icon -->
+                <span class="icon-select"><i class="fas fa-users"></i></span> <!-- multi-role icon -->
                 <select id="role" name="role" class="form-control" required>
                   <option value="user" <% if (formData && formData.role==='user' ) { %> selected <% } %>>User</option>
                   <option value="admin" <% if (formData && formData.role==='admin' ) { %> selected <% } %>>Admin
