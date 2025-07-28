@@ -541,32 +541,38 @@ app.post('/addBudget', checkAuthenticated, (req, res) => {
 
     const formattedMonth = month + '-01';
 
-    // 1. First check if this budget exists
-    const checkSql = "SELECT * FROM budgets WHERE category = ? AND month = ? AND userId = ?";
-    connection.query(checkSql, [category, formattedMonth, userId], (err, results) => {
-        if (err) {
-            console.error('Error checking existing budget:', err);
-            return res.status(500).send('Error checking budget');
-        }
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) { //Is the value Not a Number (isNaN) and check if its a positive number.
+        req.flash('error', 'Amount must be a positive number.');
+        return res.redirect('/addBudget');
+    }
 
-        if (results.length > 0) {
-            req.flash("error", "Budget for this category and month already exists.");
-            return res.redirect("/dashboard");
-        }
-
-        // 2. If not exists, insert new budget
-        const insertSql = 'INSERT INTO budgets (userId, category, month, amount) VALUES (?, ?, ?, ?)';
-        connection.query(insertSql, [userId, category, formattedMonth, amount], (err, result) => {
+        // 1. First check if this budget exists
+        const checkSql = "SELECT * FROM budgets WHERE category = ? AND month = ? AND userId = ?";
+        connection.query(checkSql, [category, formattedMonth, userId], (err, results) => {
             if (err) {
-                console.error('Error adding budget:', err);
-                return res.status(500).send('Error saving budget');
+                console.error('Error checking existing budget:', err);
+                return res.status(500).send('Error checking budget');
             }
 
-            req.flash('success', 'Budget added successfully!');
-            res.redirect('/dashboard');
+            if (results.length > 0) {
+                req.flash("error", "Budget for this category and month already exists.");
+                return res.redirect("/dashboard");
+            }
+
+            // 2. If not exists, insert new budget
+            const insertSql = 'INSERT INTO budgets (userId, category, month, amount) VALUES (?, ?, ?, ?)';
+            connection.query(insertSql, [userId, category, formattedMonth, amount], (err, result) => {
+                if (err) {
+                    console.error('Error adding budget:', err);
+                    return res.status(500).send('Error saving budget');
+                }
+
+                req.flash('success', 'Budget added successfully!');
+                res.redirect('/dashboard');
+            });
         });
     });
-});
 
 // Delete Expense route
 app.post('/deleteExpense/:id', checkAuthenticated, (req, res) => {
