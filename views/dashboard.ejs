@@ -35,8 +35,34 @@
   <div class="container mt-4">
     <h2>Welcome, <%= user.username %> (<%= user.role %>)</h2>
     <p class="text-muted">You're logged in to your personal budget dashboard.</p>
-
     <hr />
+    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filtersForm"
+      aria-expanded="false" aria-controls="filtersForm">
+      Filter
+    </button>
+    <form method="GET" action="/dashboard/filter" class="mb-3 collapse" id="filtersForm">
+      <div class="input-group">
+        <span class="input-group-text" id="basic-addon1">Category</span>
+        <select class="form-select" id="categoryFilter" name="categoryFilter">
+          <option value="Rent">Rent</option>
+          <option value="Transport">Transport</option>
+          <option value="Food">Food</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Insurance">Insurance</option>
+          <option value="Medical">Medical</option>
+          <option value="Saving, Investing, & Debt Payments">Saving, Investing, & Debt Payments</option>
+          <option value="Personal Spending & Entertainment">Personal Spending & Entertainment</option>
+          <option value="Miscellaneous">Miscellaneous</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <span class="input-group-text" id="basic-addon1">Month</span>
+        <input type="month" class="form-control" aria-label="Month Filter" aria-describedby="month-addon1"
+          id="monthFilter" name="monthFilter">
+      </div>
+      <button type="submit" class="btn btn-success">Apply Filters</button>
+    </form>
+    <a href="/dashboard" class="btn btn-danger" role="button" aria-pressed="true">Clear Filter</a>
 
     <!-- Budget Summary Table -->
     <h3>Your Budgets</h3>
