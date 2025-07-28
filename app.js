@@ -525,7 +525,7 @@ app.get('/addBudget', checkAuthenticated, (req, res) => {
     res.render('addBudget', { user: req.session.user });
 });
 
-aapp.post('/addBudget', checkAuthenticated, (req, res) => {
+app.post('/addBudget', checkAuthenticated, (req, res) => {
     const userId = req.session.user.id;
     const { category, month, amount } = req.body;
     const formattedMonth = month + '-01';
