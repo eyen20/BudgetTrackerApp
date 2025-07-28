@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <title>Update Expense</title>
 </head>
+
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
@@ -19,10 +21,10 @@
         <ul class="navbar-nav">
           <li class="nav-item">
             <a class="nav-link" href="/dashboard">Dashboard</a>
-          </li> 
+          </li>
           <li class="nav-item">
             <a class="nav-link" href="/logout">Logout</a>
-          </li> 
+          </li>
         </ul>
       </div>
     </div>
@@ -41,26 +43,43 @@
 
         <div class="mb-3">
           <label for="category" class="form-label">Category:</label>
-          <input type="text" class="form-control" id="category" name="category" value="<%= expense.category %>" required>
+          <select class="form-control" id="category" name="category" required>
+            <option value="Rent" <%=expense.category==="Rent" ? "selected" : "" %>>Rent</option>
+            <option value="Transport" <%=expense.category==="Transport" ? "selected" : "" %>>Transport</option>
+            <option value="Food" <%=expense.category==="Food" ? "selected" : "" %>>Food</option>
+            <option value="Utilities" <%=expense.category==="Utilities" ? "selected" : "" %>>Utilities</option>
+            <option value="Insurance" <%=expense.category==="Insurance" ? "selected" : "" %>>Insurance</option>
+            <option value="Medical" <%=expense.category==="Medical" ? "selected" : "" %>>Medical</option>
+            <option value="Saving, Investing, & Debt Payments"
+              <%=expense.category==="Saving, Investing, & Debt Payments" ? "selected" : "" %>>Saving, Investing, & Debt
+              Payments</option>
+            <option value="Personal Spending & Entertainment" <%=expense.category==="Personal Spending & Entertainment"
+              ? "selected" : "" %>>Personal Spending & Entertainment</option>
+            <option value="Miscellaneous" <%=expense.category==="Miscellaneous" ? "selected" : "" %>>Miscellaneous
+            </option>
+          </select>
         </div>
 
         <div class="mb-3">
           <label for="amount" class="form-label">Amount ($)</label>
-          <input type="number" class="form-control" id="amount" name="amount" min="0" step="0.01" value="<%= expense.amount %>" required>
+          <input type="number" class="form-control" id="amount" name="amount" min="0" step="0.01"
+            value="<%= expense.amount %>" required>
         </div>
 
         <div class="mb-3">
           <label for="date" class="form-label">Date</label>
-          <input type="date" class="form-control" id="date" name="date" value="<%= new Date(expense.date).toISOString().split('T')[0] %>" required>
+          <input type="date" class="form-control" id="date" name="date"
+            value="<%= new Date(expense.date).toISOString().split('T')[0] %>" required>
         </div>
 
         <div class="d-grid">
           <button type="submit" class="btn btn-primary">Update Expense</button>
         </div>
       </form>
-    <% } else { %>
-      <p class="text-center">No expenses were found.</p>
-    <% } %>
+      <% } else { %>
+        <p class="text-center">No expenses were found.</p>
+        <% } %>
   </div>
 </body>
+
 </html>
